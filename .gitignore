@@ -1,1 +1,4 @@
 /Databases/*
+!/Databases/vehmae.dbf
+/ReadDatabases/vendor/*
+/ReadDatabases/composer.*
