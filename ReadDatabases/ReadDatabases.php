@@ -8,7 +8,7 @@
 
         <?php
 
-        require "/home/agustin/Desktop/Seminario/HelloWorld/vendor/autoload.php";
+        require "./vendor/autoload.php";
 
         use XBase\Table;
 
