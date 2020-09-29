@@ -4,63 +4,44 @@
         <title>Lectura Databases</title>
     </head>
     <body>
-        <p>Base de datos de VEHICULOS</p>
-
         <?php
 
-        require "./vendor/autoload.php";
+        require_once('Gestor.php');
 
-        use XBase\Table;
+        $databaseType = 'DETALLES'; #VALORES: CLIENTES, VEHICULOS, DETALLES, TRABAJOS.
 
-        $table = new Table('/home/agustin/Desktop/Seminario/Databases/vehmae.dbf');
+        echo '<p>Base de datos de ' . $databaseType . '</p>';
 
-        $records = $table->getRecordCount();
-        $columns = $table->getColumns();
-    
+        $gestor = new Gestor($databaseType);
+        
         echo '<p>';
-        echo 'Cantidad de registros: ', $records;
+        echo 'Cantidad de registros: ' . $gestor->getCantidadRegistros();
         echo '</p>';
 
         echo '<p>';
-        echo 'Columnas:';
-        echo 'Patente, Apellido, Nombre, Marca, Modelo, AñoAuto, NumeroMotor, Vin, FechaCompra';
+        echo 'Columnas reales:';
+        echo $gestor->getColumnasReales();
         echo '</p>';
 
-        $patente = $columns['vehpat'];
-        $apellido = $columns['vehape'];
-        $nombre = $columns['vehnom'];
-        $marca = $columns['vehmar'];
-        $modelo = $columns['vehmod'];
-        $año = $columns['vehano'];
-        $numeroMotor = $columns['vehmot'];
-        $vin = $columns['vehvin'];
-        $fechaCompra = $columns['vehcom'];
+        echo '<p>';
+        echo 'Columnas filtradas:';
+        echo $gestor->getColumnasFiltradas();
+        echo '</p>';
+
+
+        #echo '<p>';
+        #echo 'Resultado del erase:';
+        #echo '<br>';
+        #$gestor->eraseSensibleInformation();
+        #echo '</p>';
+
 
         echo '<p>';
-
-        while ($record = $table->nextRecord()) {
-            echo $record->$patente;
-            echo ', ';
-            echo $record->$apellido;
-            echo ', ';
-            echo $record->$nombre;
-            echo ', ';
-            echo $record->$marca;
-            echo ', ';
-            echo $record->$modelo;
-            echo ', ';
-            echo $record->$año;
-            echo ', ';
-            echo $record->$numeroMotor;
-            echo ', ';
-            echo $record->$vin;
-            echo ', ';
-            echo $record->$fechaCompra;
-            echo '<br>';
-
-        }
+        echo 'Resultado del search:';
+        echo '<br>';
+        $result = $gestor->search('numero', '00014925');        
+        $gestor->printData($result);
         echo '</p>';
         ?>
-        
     </body>
 </html>
