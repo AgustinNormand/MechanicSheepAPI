@@ -4,44 +4,55 @@
         <title>Lectura Databases</title>
     </head>
     <body>
+
+        <p>Base de datos de 
+        <?php $databaseName = strtoupper($_POST["DatabaseName"]); 
+        echo $databaseName;?>
+        </p>
+
         <?php
 
         require_once('Gestor.php');
 
-        $databaseType = 'DETALLES'; #VALORES: CLIENTES, VEHICULOS, DETALLES, TRABAJOS.
-
-        echo '<p>Base de datos de ' . $databaseType . '</p>';
-
-        $gestor = new Gestor($databaseType);
+        $gestor = new Gestor($databaseName);
         
         echo '<p>';
         echo 'Cantidad de registros: ' . $gestor->getCantidadRegistros();
         echo '</p>';
 
         echo '<p>';
-        echo 'Columnas reales:';
+        echo 'Columnas reales: ';
         echo $gestor->getColumnasReales();
         echo '</p>';
 
         echo '<p>';
-        echo 'Columnas filtradas:';
+        echo 'Columnas filtradas: ';
         echo $gestor->getColumnasFiltradas();
         echo '</p>';
 
+        ?>
 
-        #echo '<p>';
-        #echo 'Resultado del erase:';
-        #echo '<br>';
-        #$gestor->eraseSensibleInformation();
-        #echo '</p>';
+        <form action="ReadDatabases.php" method="post">
+        Database: <input type="text" name="DatabaseName" value=<?php echo $databaseName ?>><br>
+        ColumnaFiltrada: <input type="text" name="columna"><br>
+        Valor: <input type="text" name="valor"><br>
+        <input type="submit" value="Search">
+        </form>
 
+
+        <?php
+
+        $databaseName = strtoupper($_POST["DatabaseName"]);
+        $columna = strtolower($_POST['columna']);
+        $valor = strtoupper($_POST['valor']);
 
         echo '<p>';
         echo 'Resultado del search:';
         echo '<br>';
-        $result = $gestor->search('numero', '00014925');        
+        $result = $gestor->search($columna, $valor);        
         $gestor->printData($result);
         echo '</p>';
         ?>
+
     </body>
 </html>

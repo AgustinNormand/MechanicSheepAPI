@@ -52,7 +52,7 @@ class database {
                   
 
                   #BORRAR ESTOS
-                  
+                  /*
                   'serest' => 'serest',
                   'sercosr' => 'sercosr',
                   'sercosm' => 'sercosm',
@@ -81,7 +81,7 @@ class database {
                   'serciva' => 'serciva',
                   'sercom' => 'sercom',
                   'serter' => 'serter',
-
+                  */
                   #BORRAR ESTOS
                 );
             break;
@@ -97,6 +97,7 @@ class database {
                     'codigo' => 'sercod',
 
                     #BORRAR ESTOS
+                    /*
                     'sergan' => 'sergan',
                     'sersub' => 'sersub',
                     'serpre' => 'serpre',
@@ -111,6 +112,7 @@ class database {
                     'serctip' => 'serctip',
                     'sercsuc' => 'sercsuc',
                     'sercnro' => 'sercnro',
+                    */
                     #BORRAR ESTOS
                   );
             break;

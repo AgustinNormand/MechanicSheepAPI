@@ -42,7 +42,7 @@ class gestor{
     }
 
 
-    function storeRecord(&$data, $record, $j){
+    function concatenateRecord(&$data, $record, $j){
         foreach($this->atributes as $atribute){
             $humanAtributeName = $this->database->getHumanAtributeName($atribute);
             $data[$j][$humanAtributeName] = $record->$atribute;
@@ -60,10 +60,22 @@ class gestor{
             while ($record = $this->table->nextRecord()) {
                 $value = $record->$atribute;
                 if($value == $valueToSearch){
-                    $this->storeRecord($data, $record, $j);       
+                    $this->concatenateRecord($data, $record, $j);       
                     $j++;
                 }
             }
+        }
+        return $data;
+    }
+
+    function showAllRecords(){
+        $j = 0;
+        $data = array(
+            array()
+        );
+        while ($record = $this->table->nextRecord()) {
+            $this->concatenateRecord($data, $record, $j);       
+            $j++;
         }
         return $data;
     }
@@ -86,9 +98,6 @@ class gestor{
         $table->openWrite();
 
         $sensibleFields = array(
-            'sersub',
-            'serpre',
-            'sergan',
         );
 
         while ($record = $table->nextRecord()) {
