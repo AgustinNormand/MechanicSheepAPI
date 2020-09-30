@@ -17,16 +17,24 @@ class gestor{
         $this->database = new Database($databaseType);
         $this->atributes = $this->database->getAtributes();
         $this->columns = $this->database->getColumnNames();
+    }
 
+    function openDatabase(){
         $this->table = new Table($this->database->getPathToDatabase());
+    }
 
-        
+    function closeDatabase(){
+        $this->table->close();
     }
 
     function getCantidadRegistros(){
+        $this->openDatabase();
         if (!is_null($this->table)){
-            return $this->table->getRecordCount();
+            $recordCount = $this->table->getRecordCount();
+            $this->closeDatabase();
+            return $recordCount;
         }
+        
     }
 
     function getColumnasFiltradas(){
@@ -36,8 +44,11 @@ class gestor{
     }
 
     function getColumnasReales(){
+        $this->openDatabase();
         if (!is_null($this->table)){
-            return implode(', ', $this->table->getColumns());
+            $this->closeDatabase();
+            $columnasReales = implode(', ', $this->table->getColumns());
+            return $columnasReales;
         }
     }
 
@@ -50,6 +61,7 @@ class gestor{
     }
 
     function search($atribute, $valueToSearch){
+        $this->openDatabase();
         $j = 0;
         $data = array(
             #array()
@@ -65,10 +77,12 @@ class gestor{
                 }
             }
         }
+        $this->closeDatabase();
         return $data;
     }
 
     function showAllRecords(){
+        $this->openDatabase();
         $j = 0;
         $data = array(
             array()
@@ -77,6 +91,7 @@ class gestor{
             $this->concatenateRecord($data, $record, $j);       
             $j++;
         }
+        $this->closeDatabase();
         return $data;
     }
 
