@@ -52,7 +52,7 @@ class gestor{
     function search($atribute, $valueToSearch){
         $j = 0;
         $data = array(
-            array()
+            #array()
         );
         
         $atribute = $this->database->getMachineAtributeName($atribute);
