@@ -59,6 +59,13 @@
             return $detalles;
         }
 
+        function exportAllCsv(){
+            $this->gestorClientes->exportCsv();
+            $this->gestorTrabajos->exportCsv();
+            $this->gestorDetalles->exportCsv();
+            $this->gestorVehiculos->exportCsv();
+        }
+
     }
 
 ?>

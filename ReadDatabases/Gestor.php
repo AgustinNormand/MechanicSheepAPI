@@ -10,10 +10,13 @@ class gestor{
     private $database;
     var $table = null;
     var $columns = null;
+    
+    private $databaseName;
 
     private $atributes;
    
     function __construct($databaseType){
+        $this->databaseName = $databaseType;
         $this->database = new Database($databaseType);
         $this->atributes = $this->database->getAtributes();
         $this->columns = $this->database->getColumnNames();
@@ -121,6 +124,26 @@ class gestor{
                 $table->writeRecord();
             }
         }
+    }
+
+    function exportCsv(){
+        $data = array();
+        $fp = fopen('../Databases/CSV_Files/'.$this->databaseName.'.csv','w');
+        $this->openDatabase();
+        $recordCount = 0;
+        while ($record = $this->table->nextRecord()) {
+            $i = 0;
+            foreach($this->atributes as $atribute){
+                $data[$i++] = $record->$atribute;
+            }
+            fputcsv($fp, $data);
+            $recordCount++;
+        }
+        echo "Counted records: ".$recordCount;
+        echo "<br>";
+        $this->closeDatabase();
+        fclose($fp);
+
     }
 }
 ?>

@@ -1,3 +1,2 @@
-/Databases/*
-/ReadDatabases/vendor/*
-/ReadDatabases/composer.*
+*
+!ReadDatabases/

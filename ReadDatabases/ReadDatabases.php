@@ -11,6 +11,10 @@
         </p>
 
         <?php
+        /*
+        session_start() 
+        $_SESSION['database'] = $_POST['DatabaseName']; 
+        */
 
         require_once('Gestor.php');
 
@@ -33,7 +37,7 @@
         ?>
 
         <form action="ReadDatabases.php" method="post">
-        Database: <input type="text" name="DatabaseName" value=<?php echo $databaseName ?>><br>
+        <input type="hidden" name="DatabaseName" value=<?php echo $databaseName ?>><br>
         ColumnaFiltrada: <input type="text" name="columna"><br>
         Valor: <input type="text" name="valor"><br>
         <input type="submit" value="Search">
