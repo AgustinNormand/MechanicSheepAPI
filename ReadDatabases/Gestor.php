@@ -12,8 +12,9 @@ class gestor{
     var $columns = null;
     
     private $databaseName;
-
     private $atributes;
+
+
    
     function __construct($databaseType){
         $this->databaseName = $databaseType;
