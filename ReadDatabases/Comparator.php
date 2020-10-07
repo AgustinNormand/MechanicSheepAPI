@@ -12,7 +12,8 @@ Class Comparator
 
     var $newTable = null;
 
-    private $searchRange = 150;
+    private $leftSearchRange = null;
+    private $rightSearchRange = null;
 
     private $columns;
 
@@ -33,8 +34,8 @@ Class Comparator
     }
 
 
-    function checkDiferences($searchRange){
-        $this->oldTable = new Table($this->dbfFilePath.'bk');
+    function checkDiferences($leftSearchRange, $rightSearchRange){
+        $this->oldTable = new Table($this->dbfFilePath.'.bk');
         $this->newTable = new Table($this->dbfFilePath);
 
         $this->columns = $this->oldTable->getColumns();
@@ -51,6 +52,8 @@ Class Comparator
             if ($this->lastUndeletedRecordIndexOldTable == null)
                 throw new Exception('Cannot found an undeleted record in OldTable');
     
+        $this->leftSearchRange = $leftSearchRange;
+        $this->rightSearchRange = $rightSearchRange;
 
         echo "Checking new records \n";
         $this->checkNewRecords();
@@ -59,7 +62,9 @@ Class Comparator
         echo "Checking deleted records \n";
         $this->checkDeletedRecords();
 
-        $closeDatabases();
+        $this->setCheckpoint($this->dbfFilePath);
+
+        $this->closeDatabases();
     }
 
     function checkNewRecords(){
@@ -67,16 +72,16 @@ Class Comparator
 
         $newRecordsAnalized = 0; #Variables para analizar tantos registros como diga el searchRange
 
-        while($i >= 0 and ($newRecordsAnalized <= $this->searchRange or $this->searchRange == null))
+        while($i >= 0 and ($newRecordsAnalized <= $this->leftSearchRange or $this->leftSearchRange == null))
         {
             $recordNewTable = $this->newTable->pickRecord($i);
             
             if(!$recordNewTable->isDeleted()){ #Si el registro estaba eliminado
                 $newRecordsAnalized++; #Descuento registros por analizar del serachRange
-                $isNew = $this->buscarAlternadamente($recordNewTable, $i, $this->lastUndeletedRecordIndexOldTable, $this->oldTable, False);
+                $isNew = $this->buscarAlternadamente($recordNewTable, $i, $this->oldTable, $this->lastUndeletedRecordIndexOldTable, False);
                 $j = $this->lastUndeletedRecordIndexOldTable;
                 
-                if ($isNew and !in_array($recordNewTable, $this->newRecordsFound))
+                if ($isNew == 0 and !$this->exists($recordNewTable, $this->newRecordsFound))
                     $this->newRecordsFound[] = $recordNewTable;
             }
             $i--;
@@ -88,16 +93,16 @@ Class Comparator
 
         $oldRecordsAnalized = 0;
 
-        while($j >= 0 and ($oldRecordsAnalized <= $this->searchRange or $this->searchRange == null)) #Mientras el indice sea valido y no haya analizado tantos registros como el searchRange
+        while($j >= 0 and ($oldRecordsAnalized <= $this->leftSearchRange or $this->leftSearchRange == null)) #Mientras el indice sea valido y no haya analizado tantos registros como el searchRange
         {
             $recordOldTable = $this->oldTable->pickRecord($j);
             
             if(!$recordOldTable->isDeleted()){  
                 $oldRecordsAnalized++; #Descuento registros por analizar del serachRange
 
-                $isDeleted = $this->buscarAlternadamente($recordOldTable, $j, $this->lastUndeletedRecordIndexNewTable, $this->newTable, True);
+                $isDeleted = $this->buscarAlternadamente($recordOldTable, $j, $this->newTable, $this->lastUndeletedRecordIndexNewTable, True);
 
-                if ($isDeleted and !in_array($recordOldTable, $this->deletedRecordsFound))
+                if (($isDeleted == 2 or $isDeleted == 0) and !$this->exists($recordOldTable, $this->deletedRecordsFound))
                     $this->deletedRecordsFound[] = $recordOldTable;
             }
             $j--;
@@ -105,39 +110,48 @@ Class Comparator
     }
 
     function buscarAlternadamente($recordTablaOrigen, $indiceRegistro, $tablaDestino, $lastUndeletedRecordIndexTablaDestino, $analizeDeleted){
-        $found = false;
+        $result = 0; #0=NoLoEncontró 1=LoEncontró 2=LoEncontróDeLosEliminados
 
         $recordsAnalized = 0;
 
-        $indiceSuperior = $indiceRegistro--; #Tiende a cero
+        $indiceSuperior = $indiceRegistro - 1; #Tiende a cero
         $indiceInferior = $indiceRegistro; #Tiende al mayor registro de la tabla
 
         if ($analizeDeleted)
-            $limiteInferior = $lastUndeletedRecordIndexTablaDestino;
-        else
             $limiteInferior = $tablaDestino->getRecordCount() - 1;
+        else
+            $limiteInferior = $lastUndeletedRecordIndexTablaDestino;
+            
 
-        while(($indiceSuperior >= 0 or $indiceInferior <= $limiteInferior) and ($recordsAnalized <= $this->searchRange or $this->searchRange == null) and !$found){
-            if ($indiceSuperior >= 0 and !$found){
+        while(($indiceSuperior >= 0 or $indiceInferior <= $limiteInferior) and ($recordsAnalized <= $this->rightSearchRange or $this->rightSearchRange == null) and $result == 0){
+            if ($indiceSuperior >= 0 and $result == 0){
                 $recordTablaDestino = $tablaDestino->pickRecord($indiceSuperior);
-                if(!$recordTablaDestino->isDeleted() or $analizeDeleted){
+                $isDeleted = $recordTablaDestino->isDeleted();
+                if(!$isDeleted or $analizeDeleted){
                     if ($this->equals($recordTablaDestino, $recordTablaOrigen))
-                        $found = true;
+                        if($isDeleted)
+                            $result = 2;
+                        else
+                            $result = 1;
                     $recordsAnalized++;
                 }
                 $indiceSuperior--;
             }
-            if ($indiceInferior <= $limiteInferior and !$found){
+            if ($indiceInferior <= $limiteInferior and $result == 0){
                 $recordTablaDestino = $tablaDestino->pickRecord($indiceInferior);
+                $isDeleted = $recordTablaDestino->isDeleted();
                 if(!$recordTablaDestino->isDeleted() or $analizeDeleted){
                     if ($this->equals($recordTablaDestino, $recordTablaOrigen))
-                        $found = true;
+                        if($isDeleted)
+                        $result = 2;
+                    else
+                        $result = 1;
                     $recordsAnalized++;
                 }
                 $indiceInferior++;
             }
         }
-        return $found;
+        return $result;
     }
 
     function getLastUndeletedRecordIndex($table){
@@ -164,6 +178,19 @@ Class Comparator
             }
         }
         return $result;
+    }
+
+    function exists($recordToSearch, $array){
+        $result = false;
+
+        foreach($array as $record)
+            if ($this->equals($recordToSearch, $record)){
+                $result = true;
+            break;
+            }
+
+        return $result;
+
     }
 
     function closeDatabases(){
