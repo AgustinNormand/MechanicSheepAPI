@@ -1,3 +1,0 @@
-[2020-09-30T09:10:58.559713-03:00] middleware.WARNING: Testing [] []
-[2020-09-30T09:12:44.836455-03:00] middleware.WARNING: Testing [] []
-[2020-09-30T09:17:18.393693-03:00] middleware.WARNING: Middleware->getClientesPorDni->Más de 1 cliente con el mismo DNI: 16618699 [] []

@@ -70,22 +70,22 @@ Class Watchdog{
         echo "New modify in '.$databaseType.' detected.\n";
         switch($databaseType){
             case 'Clientes':
-                $this->comparatorClientes->checkDiferences($this->pathToFile.$fileName, 150);
+                $this->comparatorClientes->checkDiferences(150);
                 $this->comparatorClientes->printNewRecordsFound();
                 $this->comparatorClientes->printDeletedRecordsFound();
             break;
             case 'Vehiculos':
-                $this->comparatorVehiculos->checkDiferences($this->pathToFile.$fileName, 150);
+                $this->comparatorVehiculos->checkDiferences(150);
                 $this->comparatorVehiculos->printNewRecordsFound();
                 $this->comparatorVehiculos->printDeletedRecordsFound();
             break;
             case 'Detalles':
-                $this->comparatorDetalles->checkDiferences($this->pathToFile.$fileName, 150);
+                $this->comparatorDetalles->checkDiferences(150);
                 $this->comparatorDetalles->printNewRecordsFound();
                 $this->comparatorDetalles->printDeletedRecordsFound();
             break;
             case 'Trabajos':
-                $this->comparatorTrabajos->checkDiferences($this->pathToFile.$fileName, 150);
+                $this->comparatorTrabajos->checkDiferences(150);
                 $this->comparatorTrabajos->printNewRecordsFound();
                 $this->comparatorTrabajos->printDeletedRecordsFound();
             break;     
