@@ -1,0 +1,43 @@
+{
+    "name": "seminario/mechanicsheep-api",
+    "description": "API para la integración del sistema desktop de MechanicSheep al sistema web.",
+    "keywords": ["php", "mvc"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Delfina Morello",
+            "email": "DelfinaMorello@gmail.com",
+            "role": "Main Developer"
+        },
+        {
+            "name": "Germán Fernandez",
+            "email": "GermanFernandez@gmail.com",
+            "role": "Main Developer"
+        },
+        {
+            "name": "Melany Bulfero",
+            "email": "MelanyBulfero@gmail.com",
+            "role": "Main Developer"
+        },
+        {
+            "name": "Agustín Normand",
+            "email": "AgustinNormand@gmail.com",
+            "role": "Main Developer"
+        }
+    ],
+
+    "require": {
+        "hisamu/php-xbase": "1.2.2",
+        "monolog/monolog": "^2.1",
+        "vlucas/phpdotenv": "^5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+
+    "autoload" : {
+        "psr-4":{
+            "API\\":"src/"
+        }
+    }
+}
