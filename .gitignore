@@ -1,0 +1,6 @@
+/vendor
+/UntouchedDatabases
+.vscode/
+logs/
+.env
+DBS_FOR_TESTS/
