@@ -42,6 +42,13 @@
             $this->configs["VERIFY_MODIFICATIONS_TIMER"] = getenv("VERIFY_MODIFICATIONS_TIMER", 5);
 
             $this->configs["ONLY_HISTORICAL_RECORDS"] = getenv("ONLY_HISTORICAL_RECORDS", "true");
+
+            $this->configs["DB_CONNECTION"] = getenv("DB_CONNECTION", "mysql");
+            $this->configs["DB_HOST"] = getenv("DB_HOST", "127.0.0.1");
+            $this->configs["DB_PORT"] = getenv("DB_PORT", "3306");
+            $this->configs["DB_DATABASE"] = getenv("DB_DATABASE", "root");
+            $this->configs["DB_USERNAME"] = getenv("DB_USERNAME", "root");
+            $this->configs["DB_PASSWORD"] = getenv("DB_PASSWORD", "");
         }
 
         public function get($name)
