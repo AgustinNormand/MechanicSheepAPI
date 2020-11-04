@@ -4,6 +4,7 @@
     use Dotenv\Dotenv;
     use Monolog\Logger;
     use Monolog\Handler\StreamHandler;
+    use Illuminate\Database\Capsule\Manager as Capsule;
 
     use API\Core\Config;
 
@@ -17,3 +18,16 @@
     $handler->setLevel($config->get("LOG_LEVEL"));
     $log->pushHandler($handler);
 
+    $capsule = new Capsule;
+    $capsule->addConnection([
+        "driver" => $config->get("DB_CONNECTION"),
+        "host" => $config->get("DB_HOST"),
+        "port" => $config->get("DB_PORT"),
+        "database" => $config->get("DB_DATABASE"),
+        "username" => $config->get("DB_USERNAME"),
+        "password" => $config->get("DB_PASSWORD")
+     ]);
+     $capsule->setAsGlobal();
+     $capsule->bootEloquent();
+
+    
