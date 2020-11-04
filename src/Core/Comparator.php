@@ -264,6 +264,13 @@ class Comparator
         }
     }
 
+    function resetAcumulatedRecords() ##Esto hay que hacerlo mucho mejor
+    {
+        $this->newRecordsFound = [];
+        $this->deletedRecordsFound = [];
+        $this->modifiedRecordsFound = [];
+    }
+
     function toString($record)
     {
         $recordStr = '';
