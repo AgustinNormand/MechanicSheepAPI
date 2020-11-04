@@ -6,6 +6,8 @@ use API\Core\Config;
 use API\Core\Comparator;
 use API\Core\Log;
 
+use API\Core\ReflectChanges;
+
 class Watchdog{
 
     private $pathToFile;
@@ -21,9 +23,15 @@ class Watchdog{
     private $comparatorDetalles;
     private $comparatorTrabajos;
 
+    private $reflectChangesClientes;
+    private $reflectChangesVehiculos;
+    private $reflectChangesDetalles;
+    private $reflectChangesTrabajos;
+
     private $onlyHistoricals;
 
     function __construct(){
+        
         $config = Config::getInstance();
         $this->pathToFile = $config->get("DBF_FILES_PATH");
         $this->onlyHistoricals = ($config->get("ONLY_HISTORICAL_RECORDS") == "true");
@@ -32,25 +40,27 @@ class Watchdog{
             [
                 'Vehiculos' => 
                     [
-                        $config->get("RANGO_IZQ_VEHICULOS"),
-                        $config->get("RANGO_DER_VEHICULOS")
+                        $config->get("RANGO_IZQ_VEHICULOS") == 0 ? null : $config->get("RANGO_IZQ_VEHICULOS"), 
+                        $config->get("RANGO_DER_VEHICULOS") == 0 ? null : $config->get("RANGO_DER_VEHICULOS")  
                     ],
                 'Clientes' => 
                     [
-                        $config->get("RANGO_IZQ_VEHICULOS"),
-                        $config->get("RANGO_DER_VEHICULOS")
+                        $config->get("RANGO_IZQ_CLIENTES") == 0 ? null : $config->get("RANGO_IZQ_CLIENTES"),
+                        $config->get("RANGO_DER_CLIENTES") == 0 ? null : $config->get("RANGO_DER_CLIENTES")  
                     ],
                 'Detalles' => 
                     [
-                        $config->get("RANGO_IZQ_VEHICULOS"),
-                        $config->get("RANGO_DER_VEHICULOS")
+                        $config->get("RANGO_IZQ_DETALLES") == 0 ? null : $config->get("RANGO_IZQ_DETALLES"),
+                        $config->get("RANGO_DER_DETALLES") == 0 ? null : $config->get("RANGO_DER_DETALLES")  
                     ],
                 'Trabajos' => 
                     [
-                        $config->get("RANGO_IZQ_VEHICULOS"),
-                        $config->get("RANGO_DER_VEHICULOS")
+                        $config->get("RANGO_IZQ_TRABAJOS") == 0 ? null : $config->get("RANGO_IZQ_TRABAJOS"),
+                        $config->get("RANGO_DER_TRABAJOS") == 0 ? null : $config->get("RANGO_DER_TRABAJOS")        
                     ],
             ];
+
+            #var_dump($this->limits);
         
         $this->fileNames = 
             [
@@ -62,6 +72,7 @@ class Watchdog{
 
         $this->initializeModifyDates();
         $this->initializeComparators();
+        $this->initializeReflectChanges();
     }
 
     function initializeModifyDates(){
@@ -75,7 +86,7 @@ class Watchdog{
     }
 
     function initializeComparators(){
-        $this->comparatorClientes = new Comparator();
+        $this->comparatorClientes = new ComparatorClientes();
         $this->comparatorVehiculos = new Comparator();
         if(!$this->onlyHistoricals)
         {
@@ -91,6 +102,15 @@ class Watchdog{
         $this->comparatorVehiculos->setCheckpoint($this->pathToFile.$this->fileNames['Vehiculos']);
         $this->comparatorDetalles->setCheckpoint($this->pathToFile.$this->fileNames['Detalles']);
         $this->comparatorTrabajos->setCheckpoint($this->pathToFile.$this->fileNames['Trabajos']);
+    }
+
+    function initializeReflectChanges()
+    {
+        $this->reflectChangesClientes = new ReflectChangesClientes;
+        $this->reflectChangesTrabajos = new ReflectChangesTrabajos;
+        $this->reflectChangesVehiculos = new ReflectChanges;
+        $this->reflectChangesDetalles = new ReflectChanges;
+
     }
 
     function checkModifyDates(){
@@ -115,6 +135,12 @@ class Watchdog{
 
         $comparatorName = "comparator" . $databaseType;
         $this->$comparatorName->checkDiferences($this->limits[$databaseType][0],$this->limits[$databaseType][1]);
+
+        $reflectChangesName = "reflectChanges" . $databaseType;
+        $this->$reflectChangesName->deletedRecords($this->$comparatorName->getAcumulatedDeletedRecordsFound());
+        $this->$reflectChangesName->newRecords($this->$comparatorName->getAcumulatedNewRecordsFound());
+        $this->$reflectChangesName->modifiedRecords($this->$comparatorName->getAcumulatedModifiedRecordsFound());
+        $this->$comparatorName->resetAcumulatedRecords();
     }
 
     public function loopForever()
