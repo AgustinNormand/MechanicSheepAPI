@@ -27,14 +27,14 @@
             $this->configs["DBF_TRABAJOS_NAME"] = getenv("DBF_TRABAJOS_NAME", "sermae.dbf");
             $this->configs["DBF_VEHICULOS_NAME"] = getenv("DBF_VEHICULOS_NAME", "vehmae.dbf");
             
-            $this->configs["RANGO_IZQ_CLIENTES"] = getenv("RANGO_IZQ_CLIENTES", "null");
-            $this->configs["RANGO_DER_CLIENTES"] = getenv("RANGO_DER_CLIENTES", "null");
-            $this->configs["RANGO_IZQ_DETALLES"] = getenv("RANGO_IZQ_DETALLES", "null");
-            $this->configs["RANGO_DER_DETALLES"] = getenv("RANGO_DER_DETALLES", "null");
-            $this->configs["RANGO_IZQ_TRABAJOS"] = getenv("RANGO_IZQ_TRABAJOS", "null");
-            $this->configs["RANGO_DER_TRABAJOS"] = getenv("RANGO_DER_TRABAJOS", "null");
-            $this->configs["RANGO_IZQ_VEHICULOS"] = getenv("RANGO_IZQ_VEHICULOS", "null");
-            $this->configs["RANGO_DER_VEHICULOS"] = getenv("RANGO_DER_VEHICULOS", "null");
+            $this->configs["RANGO_IZQ_CLIENTES"] = (int) getenv("RANGO_IZQ_CLIENTES", null);
+            $this->configs["RANGO_DER_CLIENTES"] = (int) getenv("RANGO_DER_CLIENTES", null);
+            $this->configs["RANGO_IZQ_DETALLES"] = (int) getenv("RANGO_IZQ_DETALLES", null);
+            $this->configs["RANGO_DER_DETALLES"] = (int) getenv("RANGO_DER_DETALLES", null);
+            $this->configs["RANGO_IZQ_TRABAJOS"] = (int) getenv("RANGO_IZQ_TRABAJOS", null);
+            $this->configs["RANGO_DER_TRABAJOS"] = (int) getenv("RANGO_DER_TRABAJOS", null);
+            $this->configs["RANGO_IZQ_VEHICULOS"] = (int) getenv("RANGO_IZQ_VEHICULOS", null);
+            $this->configs["RANGO_DER_VEHICULOS"] = (int) getenv("RANGO_DER_VEHICULOS", null);
 
             $this->configs["LOG_LEVEL"] = getenv("LOG_LEVEL", "DEBUG");
             $this->configs["LOG_PATH"] = getenv("LOG_PATH", "/logs/");
