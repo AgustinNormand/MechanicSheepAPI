@@ -3,10 +3,17 @@
 namespace API\Core;
 
 use API\Core\Config;
-use API\Core\Comparator;
 use API\Core\Log;
 
-use API\Core\ReflectChanges;
+use API\Core\Comparators\ComparatorBase;
+use API\Core\Comparators\ComparatorTrabajos;
+use API\Core\Comparators\ComparatorVehiculos;
+use API\Core\Comparators\ComparatorDetalles;
+use API\Core\Comparators\ComparatorClientes;
+
+use API\Core\Database\Updaters\ReflectChanges;
+use API\Core\Database\Updaters\ReflectChangesTrabajos;
+use API\Core\Database\Updaters\ReflectChangesClientes;
 
 class Watchdog{
 
@@ -87,11 +94,11 @@ class Watchdog{
 
     function initializeComparators(){
         $this->comparatorClientes = new ComparatorClientes();
-        $this->comparatorVehiculos = new Comparator();
+        $this->comparatorVehiculos = new ComparatorVehiculos();
         if(!$this->onlyHistoricals)
         {
-            $this->comparatorDetalles = new Comparator();
-            $this->comparatorTrabajos = new Comparator();
+            $this->comparatorDetalles = new ComparatorBase();
+            $this->comparatorTrabajos = new ComparatorBase();
         } else
         {
             $this->comparatorDetalles = new ComparatorDetalles();
