@@ -1,14 +1,13 @@
 <?php
 
-namespace API\Core;
-
+namespace API\Core\Comparators;
 
 use XBase\Table;
 use \Exception;
 
 use API\Core\Log;
 
-class Comparator
+class ComparatorBase
 {
 
     private $oldTable = null;
@@ -35,8 +34,8 @@ class Comparator
 
 
     function checkDiferences($leftSearchRange, $rightSearchRange){
-        $this->oldTable = new Table($this->dbfFilePath.'.bk');
-        $this->newTable = new Table($this->dbfFilePath);
+        $this->oldTable = new Table($this->dbfFilePath.'.bk', null, 'CP1252');
+        $this->newTable = new Table($this->dbfFilePath, null, 'CP1252');
 
         $this->columns = $this->oldTable->getColumns();
         $newColumns = $this->newTable->getColumns();
@@ -123,59 +122,14 @@ class Comparator
                 $recordsAnalized++; #Descuento registros por analizar del serachRange
                 
                 $recordNewTable = $this->newTable->pickRecord($i);
-                if (!$this->equals($recordOldTable, $recordNewTable))
+                if (!$recordNewTable->isDeleted() and !$this->equals($recordOldTable, $recordNewTable))
                     $this->addModifiedRecord($recordOldTable, $recordNewTable);
             }
             $i--;
         }
 
     }
-
-    function buscarAlternadamente($recordTablaOrigen, $indiceRegistro, $tablaDestino, $lastUndeletedRecordIndexTablaDestino, $analizeDeleted){
-        $result = 0; #0=NoLoEncontró 1=LoEncontró 2=LoEncontróDeLosEliminados
-
-        $recordsAnalized = 0;
-
-        $indiceSuperior = $indiceRegistro - 1; #Tiende a cero
-        $indiceInferior = $indiceRegistro; #Tiende al mayor registro de la tabla
-
-        if ($analizeDeleted)
-            $limiteInferior = $tablaDestino->getRecordCount() - 1;
-        else
-            $limiteInferior = $lastUndeletedRecordIndexTablaDestino;
-            
-
-        while(($indiceSuperior >= 0 or $indiceInferior <= $limiteInferior) and ($recordsAnalized < $this->rightSearchRange or $this->rightSearchRange == null) and $result == 0){
-            if (($indiceInferior <= $limiteInferior and $result == 0) and ($recordsAnalized < $this->rightSearchRange or $this->rightSearchRange == null)){
-                $recordTablaDestino = $tablaDestino->pickRecord($indiceInferior);
-                $isDeleted = $recordTablaDestino->isDeleted();
-                if(!$recordTablaDestino->isDeleted() or $analizeDeleted){
-                    if ($this->equals($recordTablaDestino, $recordTablaOrigen))
-                        if($isDeleted)
-                        $result = 2;
-                    else
-                        $result = 1;
-                    $recordsAnalized++;
-                }
-                $indiceInferior++;
-            }
-            if (($indiceSuperior >= 0 and $result == 0) and ($recordsAnalized < $this->rightSearchRange or $this->rightSearchRange == null)){
-                $recordTablaDestino = $tablaDestino->pickRecord($indiceSuperior);
-                $isDeleted = $recordTablaDestino->isDeleted();
-                if(!$isDeleted or $analizeDeleted){
-                    if ($this->equals($recordTablaDestino, $recordTablaOrigen))
-                        if($isDeleted)
-                            $result = 2;
-                        else
-                            $result = 1;
-                    $recordsAnalized++;
-                }
-                $indiceSuperior--;
-            }
-        }
-        return $result;
-    }
-
+    
     function getLastUndeletedRecordIndex($table){
         $lastUndeletedRecordIndex = null;
         $index = $table->getRecordCount() - 1;
@@ -276,8 +230,8 @@ class Comparator
         $recordStr = '';
         foreach($this->columns as $column)
             $recordStr = $recordStr . $record->$column." ";
-        $recordStr = str_replace(chr(165), "Ñ", $recordStr); //Parchea las Ñ mayuscula
-        $recordStr = str_replace(chr(164), "ñ", $recordStr); //Parchea las Ñ minúscula
+        #$recordStr = str_replace(chr(165), "Ñ", $recordStr); //Parchea las Ñ mayuscula
+        #$recordStr = str_replace(chr(164), "ñ", $recordStr); //Parchea las Ñ minúscula
         return $recordStr;
     }
 }

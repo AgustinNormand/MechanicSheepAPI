@@ -1,6 +1,6 @@
 <?php
 
-namespace API\Core;
+namespace API\Core\Database\Updaters;
 
 
 class ReflectChanges

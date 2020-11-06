@@ -1,15 +1,16 @@
 <?php
 
-namespace API\Core;
+namespace API\Core\Database\Updaters;
 
 use \Exception;
 
-use API\Core\Trabajo;
+use API\Core\Database\Models\Trabajo;
 
 class ReflectChangesTrabajos extends ReflectChanges
 {
     public function newRecords($records)
     {
+        
         foreach($records as $record)
         {
             try{
@@ -21,7 +22,9 @@ class ReflectChangesTrabajos extends ReflectChanges
                     'NOMBRE' => $record->sernom,
                     'FECHA' => $record->serfec,
                 ]);
-            }catch(Exception $e){}
+            }catch(Exception $e){
+                echo $e;
+            }
         }
     }
 

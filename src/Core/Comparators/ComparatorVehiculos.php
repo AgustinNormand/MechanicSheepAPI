@@ -1,26 +1,17 @@
 <?php
 
-namespace API\Core;
+namespace API\Core\Comparators;
 
-use API\Core\Comparator;
+use API\Core\Comparators\ComparatorBase;
+use API\Core\Log;
 
-use function PHPUnit\Framework\isNull;
-
-class ComparatorClientes extends Comparator
+class ComparatorVehiculos extends ComparatorBase
 {
     function isValid($record)
     {
         $result = false;
         $columnName = "cliape";
         $result = (strlen($record->$columnName) != 0);
-        #if($result){
-        #    Log::debug("Is valid", [$record->$columnName]);
-        #    Log::debug('Lenght', [strlen($record->$columnName)]);
-        #}
-        #else{
-        #    Log::debug("Is not valid", [$record->$columnName]);
-        #    Log::debug('Lenght', [strlen($record->$columnName)]);
-        #}
         return $result;
     }
 
