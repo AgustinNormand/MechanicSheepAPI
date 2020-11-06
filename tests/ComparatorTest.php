@@ -5,9 +5,11 @@
 
     use PHPUnit\Framework\TestCase;
 
-    use API\Core\Comparator;
-    use API\Core\ComparatorTrabajos;
-    use API\Core\ComparatorDetalles;
+    use API\Core\Comparators\ComparatorBase;
+    use API\Core\Comparators\ComparatorTrabajos;
+    use API\Core\Comparators\ComparatorDetalles;
+    use API\Core\Comparators\ComparatorVehiculos;
+    use API\Core\Comparators\ComparatorClientes;
 
     class ComparatorTest extends TestCase
     {
@@ -64,7 +66,7 @@
         {
             $this->prepareDirectory();
 
-            $comparator = new Comparator;
+            $comparator = new ComparatorBase;
             foreach($this->dbNames as $db)
             {
                 $comparator->setCheckpoint($this->path . 'DBS_TEST_DIRECTORY/' . $db);
@@ -81,7 +83,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorClientes;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Clientes");
             $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
@@ -102,7 +104,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorClientes;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Clientes");
             $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
@@ -124,7 +126,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorClientes;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Clientes");
             $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
@@ -154,7 +156,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorTrabajos;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Trabajos");
             $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
@@ -175,7 +177,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorTrabajos;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Trabajos");
             $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
@@ -196,7 +198,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorTrabajos;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Trabajos");
             $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
@@ -226,7 +228,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Detalles"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorDetalles;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Detalles");
             $comparator->checkDiferences($this->limits["Detalles"][0], $this->limits["Detalles"][1]);
@@ -256,7 +258,7 @@
             $this->prepareDirectory();
 
             $dbfFileName = $this->dbNames["Detalles"];
-            $comparator = new Comparator;
+            $comparator = new ComparatorDetalles;
             $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
             $this->simulateChange("Detalles");
             $comparator->checkDiferences($this->limits["Detalles"][0], $this->limits["Detalles"][1]);
