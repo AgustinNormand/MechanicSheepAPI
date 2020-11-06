@@ -27,7 +27,7 @@
     ],
 
     "require": {
-        "hisamu/php-xbase": "1.2.2",
+        "hisamu/php-xbase": "dev-master",
         "monolog/monolog": "^2.1",
         "vlucas/phpdotenv": "^5.2",
         "illuminate/database": "^8.13"

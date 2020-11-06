@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fe6e7ff071bcedeee9bf5b834fdbeed4",
+    "content-hash": "8367bef245cf92a8979bae4ed010de20",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -169,29 +169,31 @@
         },
         {
             "name": "hisamu/php-xbase",
-            "version": "1.2.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/luads/php-xbase.git",
-                "reference": "2267452d19f0acaf456222a9c5e499576dbdc68b"
+                "reference": "ebdb8036688f1f2318c6b19a0cbc69a23fb22c34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/luads/php-xbase/zipball/2267452d19f0acaf456222a9c5e499576dbdc68b",
-                "reference": "2267452d19f0acaf456222a9c5e499576dbdc68b",
+                "url": "https://api.github.com/repos/luads/php-xbase/zipball/ebdb8036688f1f2318c6b19a0cbc69a23fb22c34",
+                "reference": "ebdb8036688f1f2318c6b19a0cbc69a23fb22c34",
                 "shasum": ""
             },
             "require": {
+                "ext-iconv": "*",
                 "php": ">=7.1"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
                 "phpunit/phpunit": "^7.0||^8.0||^9.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -222,9 +224,9 @@
             ],
             "support": {
                 "issues": "https://github.com/luads/php-xbase/issues",
-                "source": "https://github.com/luads/php-xbase/tree/v1.2.1"
+                "source": "https://github.com/luads/php-xbase/tree/master"
             },
-            "time": "2020-09-10T15:51:05+00:00"
+            "time": "2020-11-05T09:59:19+00:00"
         },
         {
             "name": "illuminate/collections",
@@ -4049,7 +4051,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "hisamu/php-xbase": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
