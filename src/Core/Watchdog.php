@@ -5,145 +5,93 @@ namespace API\Core;
 use API\Core\Config;
 use API\Core\Log;
 
-use API\Core\Comparators\ComparatorBase;
-use API\Core\Comparators\ComparatorTrabajos;
-use API\Core\Comparators\ComparatorVehiculos;
-use API\Core\Comparators\ComparatorDetalles;
-use API\Core\Comparators\ComparatorClientes;
+use API\Core\Comparators\Comparator;
 
-use API\Core\Database\Updaters\ReflectChanges;
-use API\Core\Database\Updaters\ReflectChangesTrabajos;
-use API\Core\Database\Updaters\ReflectChangesClientes;
+use API\Core\Enum\DatabaseNames;
+
 
 class Watchdog{
 
-    private $pathToFile;
-
-    private $fileNames;
-
-    private $limits;
+    private $databaseNames;
 
     private $modifyDates = [];
 
-    private $comparatorClientes;
-    private $comparatorVehiculos;
-    private $comparatorDetalles;
-    private $comparatorTrabajos;
-
-    private $reflectChangesClientes;
-    private $reflectChangesVehiculos;
-    private $reflectChangesDetalles;
-    private $reflectChangesTrabajos;
-
-    private $onlyHistoricals;
+    private $filePaths;
 
     function __construct(){
-        
-        $config = Config::getInstance();
-        $this->pathToFile = $config->get("DBF_FILES_PATH");
-        $this->onlyHistoricals = ($config->get("ONLY_HISTORICAL_RECORDS") == "true");
-
-        $this->limits = 
-            [
-                'Vehiculos' => 
-                    [
-                        $config->get("RANGO_IZQ_VEHICULOS") == 0 ? null : $config->get("RANGO_IZQ_VEHICULOS"), 
-                        $config->get("RANGO_DER_VEHICULOS") == 0 ? null : $config->get("RANGO_DER_VEHICULOS")  
-                    ],
-                'Clientes' => 
-                    [
-                        $config->get("RANGO_IZQ_CLIENTES") == 0 ? null : $config->get("RANGO_IZQ_CLIENTES"),
-                        $config->get("RANGO_DER_CLIENTES") == 0 ? null : $config->get("RANGO_DER_CLIENTES")  
-                    ],
-                'Detalles' => 
-                    [
-                        $config->get("RANGO_IZQ_DETALLES") == 0 ? null : $config->get("RANGO_IZQ_DETALLES"),
-                        $config->get("RANGO_DER_DETALLES") == 0 ? null : $config->get("RANGO_DER_DETALLES")  
-                    ],
-                'Trabajos' => 
-                    [
-                        $config->get("RANGO_IZQ_TRABAJOS") == 0 ? null : $config->get("RANGO_IZQ_TRABAJOS"),
-                        $config->get("RANGO_DER_TRABAJOS") == 0 ? null : $config->get("RANGO_DER_TRABAJOS")        
-                    ],
-            ];
-
-            #var_dump($this->limits);
-        
-        $this->fileNames = 
-            [
-                'Vehiculos' => $config->get("DBF_VEHICULOS_NAME"),
-                'Clientes' => $config->get("DBF_CLIENTES_NAME"),
-                'Trabajos' => $config->get("DBF_TRABAJOS_NAME"),
-                'Detalles' => $config->get("DBF_DETALLES_NAME"),
-            ];
-
+        $this->databaseNames = DatabaseNames::all();
+        $this->initializeFilePaths();
         $this->initializeModifyDates();
         $this->initializeComparators();
         $this->initializeReflectChanges();
     }
 
+    function initializeFilePaths()
+    {
+        $dbfPath = Config::getInstance()->get("DBF_FILES_PATH");
+        foreach($this->databaseNames as $databaseName){  
+            $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
+            $this->filePaths[$databaseName] = $dbfPath . $dbfName;
+        }
+    }
+
     function initializeModifyDates(){
-        foreach($this->fileNames as $fileName){
-            $filePath = $this->pathToFile.$fileName;
+        foreach($this->databaseNames as $databaseName){
+            $filePath = $this->filePaths[$databaseName];
             if (file_exists($filePath))
-                $this->modifyDates[$fileName] = filemtime($filePath);
+                $this->modifyDates[$databaseName] = filemtime($filePath);
             else 
                 Log::error("initializeModifyDates - File not found {$filePath}");
         }
     }
 
     function initializeComparators(){
-        $this->comparatorClientes = new ComparatorClientes();
-        $this->comparatorVehiculos = new ComparatorVehiculos();
-        if(!$this->onlyHistoricals)
-        {
-            $this->comparatorDetalles = new ComparatorBase();
-            $this->comparatorTrabajos = new ComparatorBase();
-        } else
-        {
-            $this->comparatorDetalles = new ComparatorDetalles();
-            $this->comparatorTrabajos = new ComparatorTrabajos();
+        foreach($this->databaseNames as $databaseName){
+            $comparatorName = "comparator" . $databaseName;
+            $this->$comparatorName = new Comparator($databaseName);
+            $this->$comparatorName->setCheckpoint();
         }
-        
-        $this->comparatorClientes->setCheckpoint($this->pathToFile.$this->fileNames['Clientes']);
-        $this->comparatorVehiculos->setCheckpoint($this->pathToFile.$this->fileNames['Vehiculos']);
-        $this->comparatorDetalles->setCheckpoint($this->pathToFile.$this->fileNames['Detalles']);
-        $this->comparatorTrabajos->setCheckpoint($this->pathToFile.$this->fileNames['Trabajos']);
     }
 
     function initializeReflectChanges()
     {
-        $this->reflectChangesClientes = new ReflectChangesClientes;
-        $this->reflectChangesTrabajos = new ReflectChangesTrabajos;
-        $this->reflectChangesVehiculos = new ReflectChanges;
-        $this->reflectChangesDetalles = new ReflectChanges;
-
-    }
-
-    function checkModifyDates(){
-        foreach($this->fileNames as $fileName){
-            $filePath = $this->pathToFile.$fileName;
-            if (file_exists($filePath)){
-                $modifyDate = filemtime($filePath);
-                if ($modifyDate > $this->modifyDates[$fileName]){
-                    $this->modifyDetected($fileName);
-                    $this->modifyDates[$fileName] = $modifyDate;
-                }
-                else 
-                    if ($modifyDate < $this->modifyDates[$fileName])
-                        Log::warning("CheckModifyDates - Fecha de modificación menor a la almacenada: {$fileName}");
-            }
+        foreach($this->databaseNames as $databaseName){
+            $reflectChangesName = "reflectChanges" . $databaseName;
+            $reflectChangesClassName = "API\\Core\\Database\\Updaters\\" . ucfirst($reflectChangesName);
+            $this->$reflectChangesName = new $reflectChangesClassName;
         }
     }
 
-    function modifyDetected($fileName){
-        $databaseType = array_search($fileName, $this->fileNames);
-        Log::debug("ModifyDetected - Nueva modificación detectada en: {$databaseType}");
+    function checkModifyDates(){
+        foreach($this->databaseNames as $databaseName)
+        {
+            $filePath = $this->filePaths[$databaseName];
+            if (file_exists($filePath))
+            {
+                $modifyDate = filemtime($filePath);
+                if ($modifyDate > $this->modifyDates[$databaseName])
+                {
+                    $this->modifyDetected($databaseName);
+                    $this->modifyDates[$databaseName] = $modifyDate;
+                }
+                else 
+                    if ($modifyDate < $this->modifyDates[$databaseName])
+                    Log::warning("CheckModifyDates - Fecha de modificación menor a la almacenada: {$databaseName}");
+            } 
+            else
+            Log::warning("CheckModifyDates - FileNotExists: {$filePath}");
+        }
+    }
 
-        $comparatorName = "comparator" . $databaseType;
-        $this->$comparatorName->checkDiferences($this->limits[$databaseType][0],$this->limits[$databaseType][1]);
+    function modifyDetected($databaseName){
+        Log::debug("ModifyDetected - Nueva modificación detectada en: {$databaseName}");
+        #var_dump($this);
+        #die;
 
-        $reflectChangesName = "reflectChanges" . $databaseType;
+        $comparatorName = "comparator" . $databaseName;
+        $this->$comparatorName->checkDiferences();
+
+        $reflectChangesName = "reflectChanges" . $databaseName;
         $this->$reflectChangesName->deletedRecords($this->$comparatorName->getAcumulatedDeletedRecordsFound());
         $this->$reflectChangesName->newRecords($this->$comparatorName->getAcumulatedNewRecordsFound());
         $this->$reflectChangesName->modifiedRecords($this->$comparatorName->getAcumulatedModifiedRecordsFound());
