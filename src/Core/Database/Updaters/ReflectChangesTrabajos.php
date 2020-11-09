@@ -4,26 +4,33 @@ namespace API\Core\Database\Updaters;
 
 use \Exception;
 
+use API\Core\Enum\DatabaseColumns\DatabaseColumnsTrabajos;
 use API\Core\Database\Models\Trabajo;
+use API\Core\Log;
 
 class ReflectChangesTrabajos extends ReflectChanges
 {
-    public function newRecords($records)
+    public function __construct()
     {
-        
+        $this->columns = DatabaseColumnsTrabajos::$columns;
+    }
+    
+    public function newRecords($records)
+    {    
         foreach($records as $record)
         {
             try{
-                $trabajo = Trabajo::create([
-                    'id' => $record->sernro,
-                    'MARCA' => $record->sermar,
-                    'MODELO' => $record->sermod,
-                    'APELLIDO' => $record->serape,
-                    'NOMBRE' => $record->sernom,
-                    'FECHA' => $record->serfec,
-                ]);
+                Log::Debug("Adding new record to database:", [$record]);
+                $data = [];
+                foreach($this->columns as $column){
+                    $key = array_search($column, $this->columns);
+                    $data[$key] = $record->get($key);
+                }
+                $data['ID_TRABAJO'] = $record->getIndex();
+                Trabajo::create($data);
             }catch(Exception $e){
-                echo $e;
+                Log::Error("Error in ReflectChangesTrabajos -> newRecords ->", [$e, $record]);
+                die;
             }
         }
     }

@@ -3,19 +3,20 @@
 namespace API\Core\Database\Updaters;
 
 use \Exception;
-
-use API\Core\Database\Models\Cliente;
-use API\Core\Enum\DatabaseColumns\DatabaseColumnsClientes;
+use API\Core\Database\Models\Detalle;
+use API\Core\Enum\DatabaseColumns\DatabaseColumnsDetalles;
 use API\Core\Log;
 
-class ReflectChangesClientes extends ReflectChanges
+class ReflectChangesDetalles extends ReflectChanges
 {
     public function __construct()
     {
-        $this->columns = DatabaseColumnsClientes::$columns;
+        $this->columns = DatabaseColumnsDetalles::$columns;
     }
+
     public function newRecords($records)
     {
+        
         foreach($records as $record)
         {
             try{
@@ -25,10 +26,11 @@ class ReflectChangesClientes extends ReflectChanges
                     $key = array_search($column, $this->columns);
                     $data[$key] = $record->get($key);
                 }
-                $data['ID_CLIENTE'] = $record->getIndex();
-                Cliente::create($data);
+                $data['ID_DETALLE'] = $record->getIndex();
+                Detalle::create($data);
             }catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> newRecords ->", [$e, $record]);     
+                Log::Error("Error in ReflectChangesDetalles -> newRecords ->", [$e, $record]);     
+                die;
             }
         }
     }
@@ -39,10 +41,10 @@ class ReflectChangesClientes extends ReflectChanges
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $cliente = Cliente::find($record->getIndex());
-                $cliente->delete();
+                $detalle = detalle::find($record->get("DNI"));
+                $detalle->delete();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> deletedRecords ->", [$e, $record]);
+                Log::Error("Error in ReflectChangesDetalles -> deletedRecords ->", [$e, $record]);
             }
         }
     }
@@ -54,17 +56,17 @@ class ReflectChangesClientes extends ReflectChanges
             try{
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
                 ##
-                $cliente = Cliente::find($record["from"]->getIndex());
-                $cliente->ID_CLIENTE = $record["to"]->getIndex();
+                $detalle = Detalle::find($record["from"]->get("DNI"));
+                $detalle->id = $record["to"]->get("DNI");
                 foreach($this->columns as $column)
                 {
                     $key = array_search($column, $this->columns);
-                    $cliente->$key = $record["to"]->get($key);
+                    $detalle->$column = $record["to"]->get($column);
                 }
-                $cliente->save();
+                $detalle->save();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> modifiedRecords ->", [$e, $record]);
-            }
+                Log::Error("Error in ReflectChangesDetalles -> modifiedRecords ->", [$e, $record]);
+            } 
         }
     }
 }
