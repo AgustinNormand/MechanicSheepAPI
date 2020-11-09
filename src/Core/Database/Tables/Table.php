@@ -118,7 +118,6 @@ class Table
     private function buildRecord($xbaseRecord)
     {
         $data = [];
-        #$data[self::RECORD_INDEX_ATRIBUTE] = $xbaseRecord->getRecordIndex();
         foreach($this->columns as $column){
             $key = array_search($column, $this->columns);
             $data[$key] = $xbaseRecord->$column;

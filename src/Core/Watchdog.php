@@ -85,8 +85,6 @@ class Watchdog{
 
     function modifyDetected($databaseName){
         Log::debug("ModifyDetected - Nueva modificación detectada en: {$databaseName}");
-        #var_dump($this);
-        #die;
 
         $comparatorName = "comparator" . $databaseName;
         $this->$comparatorName->checkDiferences();
