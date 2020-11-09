@@ -6,10 +6,7 @@ class ValidatorClientes
 {
     public static function isValid($record)
     {
-        $result = false;
-        $apellido = "cliape";
-        $nombre = "clinom";
-        $result = ((strlen($record->$nombre) != 0) or (strlen($record->$apellido) != 0));
+        $result = ((strlen($record->get("NOMBRE")) != 0) or (strlen($record->get("APELLIDO")) != 0));
         return $result;
     }
 }
