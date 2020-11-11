@@ -35,6 +35,18 @@ class Record
         $this->isDeleted = $isDeleted;
         $this->data = $data;
         $this->index = $index;
+        foreach($this->data as $value)
+            if(!is_null($value) and is_string($value)){
+                for ( $pos=0; $pos < strlen($value); $pos ++ ) { //Recorro todos los caracteres del dato
+                    $byte = substr($value, $pos);
+                    $ordValue = ord($byte);
+                    if ($ordValue >= 128){ //Si hay algún caracter que no sea válido
+                        $key = array_search($value, $this->data);
+                        $this->data[$key] = $this->fixStringErrors($value);
+                        break;
+                    }
+                }
+            }   
     }
 
     public function __toString()
@@ -54,10 +66,6 @@ class Record
     public function get($name)
     {
         $result = $this->data[$name] ?? null;
-        if(!is_null($result) and is_string($result))
-        {
-            $result = $this->fixStringErrors($result);
-        }
         return $result;
     }
 
@@ -106,7 +114,7 @@ class Record
             $key = array_search($parche, $this->parches);
             $value = str_replace(chr($parche), $key, $value);
         }
-
         return $value;
     }
+
 }
