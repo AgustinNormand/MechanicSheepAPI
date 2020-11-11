@@ -5,281 +5,108 @@
 
     use PHPUnit\Framework\TestCase;
 
-    use API\Core\Comparators\ComparatorBase;
-    use API\Core\Comparators\ComparatorTrabajos;
-    use API\Core\Comparators\ComparatorDetalles;
-    use API\Core\Comparators\ComparatorVehiculos;
-    use API\Core\Comparators\ComparatorClientes;
+    use API\Core\Enum\DatabaseNames;
+    use API\Core\Config;
+    use API\Core\Comparators\Comparator;
 
-    class ComparatorTest extends TestCase
+use function PHPUnit\Framework\assertTrue;
+use function PHPUnit\Framework\fileExists;
+
+class TestTest extends TestCase
     {
-        private $path = __DIR__ . '/../DBS_FOR_TESTS/';
+        const DBS_MODIFIED_PATH = '/home/agustin/Test/MechanicSheepAPI/DATABASES/DBS_MODIFIED/';
 
-        private $dbNames = 
-        [
-            'Clientes' => 'climae.dbf',
-            'Trabajos' => 'SERMAE.DBF',
-            'Detalles' => 'sermae2.dbf',
-            'Vehiculos' => 'VEHmae.DBF',
-        ];
-
-        private $cdxNames = 
-        [
-            'Clientes' => 'climae.CDX',
-            'Trabajos' => 'sermae.cdx',
-            'Detalles' => 'sermae2.CDX',
-            'Vehiculos' => 'vehmae.CDX',
-        ];
-
-        private $limits = 
-        [
-            'Clientes' => [null, 1],
-            'Trabajos' => [50, 1],
-            'Detalles' => [50, 1],
-            'Vehiculos' => [50, 1],
-        ];
-
+        const DBS_UNTOUCHED_PATH ='/home/agustin/Test/MechanicSheepAPI/DATABASES/DBS_UNTOUCHED/';
         
+        private static $databaseNames;
 
-        private function prepareDirectory()
-        {
-            foreach($this->dbNames as $db)
-            {
-                try{
-                    unlink($this->path . 'DBS_TEST_DIRECTORY/' . $db . '.bk');
-                    unlink($this->path . 'DBS_TEST_DIRECTORY/' . $db);
-                } catch (Exception $e){}
-                copy($this->path . 'DBS_UNTOUCHED/' . $db, $this->path . 'DBS_TEST_DIRECTORY/' . $db);
+        private static $filePaths;
+
+
+        public static function setUpBeforeClass(): void
+        {   
+            self::$databaseNames = DatabaseNames::all();
+            $dbfPath = Config::getInstance()->get("DBF_FILES_PATH");
+            foreach(self::$databaseNames as $databaseName){  
+                $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
+                self::$filePaths[$databaseName] = $dbfPath . $dbfName;
             }
         }
 
-        private function simulateChange($dbName)
+        public static function tearDownAfterClass(): void
         {
-            $dbfFileName = $this->dbNames[$dbName];
-            $cdxFileName = $this->cdxNames[$dbName];
-            unlink($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            copy($this->path . "DBS_MODIFIED/{$dbfFileName}", $this->path . "DBS_TEST_DIRECTORY/$dbfFileName"); 
-            copy($this->path . "DBS_MODIFIED/{$cdxFileName}", $this->path . "DBS_TEST_DIRECTORY/{$cdxFileName}");
+            
         }
 
-        public function testBackup()
+        protected function setUp() : void
         {
-            $this->prepareDirectory();
-
-            $comparator = new ComparatorBase;
-            foreach($this->dbNames as $db)
-            {
-                $comparator->setCheckpoint($this->path . 'DBS_TEST_DIRECTORY/' . $db);
-                $this->assertFileExists($this->path . 'DBS_TEST_DIRECTORY/' . $db . '.bk');
-                unlink($this->path . 'DBS_TEST_DIRECTORY/' . $db . '.bk');
+            $dbfPath = Config::getInstance()->get("DBF_FILES_PATH");
+            foreach(self::$databaseNames as $databaseName){ 
+                $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
+                copy(self::DBS_UNTOUCHED_PATH . $dbfName,
+                $dbfPath . $dbfName);   
+            }
+        }
+    
+        protected function tearDown() : void
+        {
+            $dbfPath = Config::getInstance()->get("DBF_FILES_PATH");
+            #$backupExtension = Config::getInstance()->get("BACKUP_EXTENSION");
+            foreach(self::$databaseNames as $databaseName){  
+                $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
+                #if(fileExists($dbfPath . $dbfName . $backupExtension))
+                #    unlink($dbfPath . $dbfName . $backupExtension);
+                if(fileExists($dbfPath . $dbfName))
+                    unlink($dbfPath . $dbfName);
+                copy(self::DBS_UNTOUCHED_PATH . $dbfName,
+                    $dbfPath . $dbfName);
             }
         }
 
-        /**
-        * @depends testBackup
-        */
-        public function testNewClientes()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new ComparatorClientes;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Clientes");
-            $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
-            $newRecords = $comparator->getAcumulatedNewRecordsFound();
-            $newRecordsString = [];
-            foreach($newRecords as $record)
-                $newRecordsString[] = $comparator->toString($record);
-           
-            $this->assertEquals(
-                $newRecordsString, 
-                [
-                    "ASD ASD   ASD        CF     S       ",
-                ]);
+        private function simulateChange($databaseName){
+            $dbfPath = Config::getInstance()->get("DBF_FILES_PATH");
+            $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
+            copy(self::DBS_MODIFIED_PATH . $dbfName,
+                $dbfPath . $dbfName);
         }
-
-        public function testDeletedClientes()
+        
+        public function testComparatorClientes()
         {
-            $this->prepareDirectory();
+            $comparatorClientes = new Comparator(DatabaseNames::CLIENTES);
+            $comparatorClientes->setCheckpoint();
+            $this->simulateChange(DatabaseNames::CLIENTES);
+            $comparatorClientes->checkDiferences();
+            $newRecords = $comparatorClientes->getAcumulatedNewRecordsFound();
+            $modifiedRecords = $comparatorClientes->getAcumulatedModifiedRecordsFound();
+            $deletedRecords = $comparatorClientes->getAcumulatedDeletedRecordsFound();
+            
+            $this->assertEquals(count($newRecords), 1);
+            $this->assertEquals(count($modifiedRecords), 1);
+            $this->assertEquals(count($deletedRecords), 2);
 
-            $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new ComparatorClientes;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Clientes");
-            $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
-            $deletedRecords = $comparator->getAcumulatedDeletedRecordsFound();
-            $deletedRecordsString = [];
-            foreach($deletedRecords as $record)
-                $deletedRecordsString[] = $comparator->toString($record);
-             
             $this->assertEquals(
-                $deletedRecordsString, 
-                [
-                    "ZURITA GUILLERMO ANTONIO   INT. GUILLERMON 141 GENERAL RODRIGUEZ   12677172    CF     S       ",
-                    "ZURLOSO BIBIANA EDITH   RIVADAVIA 1698 GENERAL RODRIGUEZ 0  20471424    CF     S       "
-                ]);
-        }
+                $newRecords[0]->__toString(),
+                "4252  ASD ASD ASD       CF    "
+            );
 
-        public function testModifiedClientes()
-        {
-            $this->prepareDirectory();
+            $this->assertEquals(
+                $modifiedRecords[0]["from"]->__toString(),
+                "4249 95204835 WLADER RUBEN ÑARI RAMIREZ RUTA 7 KM 18.5 JAUREGUI      CF    "
+            );
 
-            $dbfFileName = $this->dbNames["Clientes"];
-            $comparator = new ComparatorClientes;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Clientes");
-            $comparator->checkDiferences($this->limits["Clientes"][0], $this->limits["Clientes"][1]);
-            $modifiedRecords = $comparator->getAcumulatedModifiedRecordsFound();
-            $modifiedRecordsFrom = [];
-            $modifiedRecordsTo = [];
-            foreach($modifiedRecords as $record){
-                $modifiedRecordsFrom[] = $comparator->toString($record["from"]);
-                $modifiedRecordsTo[] = $comparator->toString($record["to"]);
-            }
-             
             $this->assertEquals(
-                $modifiedRecordsFrom, 
-                [
-                    "ÑARI RAMIREZ WLADER RUBEN   RUTA 7 KM 18.5 JAUREGUI   95204835    CF     S       ",
-                ]);
+                $modifiedRecords[0]["to"]->__toString(),
+                "4249 95204835 WLADER RUBEN NOANDALAENIE RUTA 7 KM 18.5 JAUREGUI      CF    "
+            );
+
             $this->assertEquals(
-                $modifiedRecordsTo,
-                [
-                    "NOANDALAENIE WLADER RUBEN   RUTA 7 KM 18.5 JAUREGUI   95204835    CF     S       "
-                ],
+                $deletedRecords[0]->__toString(),
+                "4223 12677172 GUILLERMO ANTONIO ZURITA INT. GUILLERMON 141 GENERAL RODRIGUEZ      CF    "
+            );
+
+            $this->assertEquals(
+                $deletedRecords[1]->__toString(),
+                "2690 20471424 BIBIANA EDITH ZURLOSO RIVADAVIA 1698 GENERAL RODRIGUEZ 0     CF    "
             );
         }
-
-        public function testNewTrabajos()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new ComparatorTrabajos;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Trabajos");
-            $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
-            $newRecords = $comparator->getAcumulatedNewRecordsFound();
-            $newRecordsString = [];
-            foreach($newRecords as $record)
-                $newRecordsString[] = $comparator->toString($record);
-           
-            $this->assertEquals(
-                $newRecordsString, 
-                [
-                    "00014933 Tue, 03 Nov 2020 00:00:00 +0000 CKJ 830 FORD ESCORD GLX NORMAND JORGE ALBERTO E          ALTA DE REGISTRO         ERIKA   12345       S  ",
-                ]);
-        }
-
-        public function testDeletedTrabajos()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new ComparatorTrabajos;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Trabajos");
-            $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
-            $deletedRecords = $comparator->getAcumulatedDeletedRecordsFound();
-            $deletedRecordsString = [];
-            foreach($deletedRecords as $record)
-                $deletedRecordsString[] = $comparator->toString($record);
-             
-            $this->assertEquals(
-                $deletedRecordsString, 
-                [
-                    "00014926 Sat, 12 Sep 2020 00:00:00 +0000 AD317LU RENAULT NUEVO LOGAN SAUCEDO FERNANDO DAVID E 4539.08 8110.92 12650 7264.08      SERVICE DE 10.000KM.         OVEJA   10130       S  "
-                ]);
-        }
-
-        public function testModifiedTrabajos()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Trabajos"];
-            $comparator = new ComparatorTrabajos;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Trabajos");
-            $comparator->checkDiferences($this->limits["Trabajos"][0], $this->limits["Trabajos"][1]);
-            $modifiedRecords = $comparator->getAcumulatedModifiedRecordsFound();
-            $modifiedRecordsFrom = [];
-            $modifiedRecordsTo = [];
-            foreach($modifiedRecords as $record){
-                $modifiedRecordsFrom[] = $comparator->toString($record["from"]);
-                $modifiedRecordsTo[] = $comparator->toString($record["to"]);
-            }
-             
-            $this->assertEquals(
-                $modifiedRecordsFrom, 
-                [
-                    "00014925 Fri, 11 Sep 2020 00:00:00 +0000 AB537IE RENAULT KANGOO CONFORT 1.6 CUARENTA DANIELA E 16610.07 32716.61 68000 31869.77      MOTOR         OVEJA   52000       S  ",
-                ]);
-            $this->assertEquals(
-                $modifiedRecordsTo,
-                [
-                    "00014925 Fri, 11 Sep 2020 00:00:00 +0000 AB537IE RENAULT KANGOO CONFORT 1.6 CUARENTA DANIELA E 36347.39 32716.61 69064 53596.18      MOTOR         OVEJA   52000       S  "
-                ],
-            );
-        }
-        
-        public function testNewDetalles()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Detalles"];
-            $comparator = new ComparatorDetalles;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Detalles");
-            $comparator->checkDiferences($this->limits["Detalles"][0], $this->limits["Detalles"][1]);
-            $newRecords = $comparator->getAcumulatedNewRecordsFound();
-            $newRecordsString = [];
-            foreach($newRecords as $record)
-                $newRecordsString[] = $comparator->toString($record);
-           
-            $this->assertEquals(
-                $newRecordsString, 
-                [
-                    "S 2 MOTOR 1 32716.61 32716.61 0 00014925     N 0 CUARENTA DANIELA AB537IE     ",
-                    "S 8200108203 FILTRO DE ACEITE MOT.K4M 1 494.08 494.08 345.86 00014925     N 0        ",
-                    "S 8200431051 I RX 0225241229 1 1029.06 1029.06 720.34 00014925     N 0        ",
-                    "S 555 TORNILLOS DE TAPA 1 1700 1700 39.93 00014925     N 0        ",
-                    "S 115 CORREA 1 1100 1100 36.3 00014925     N 0        ",
-                    "S 3551 REPARAR TAPA DE CILINDRO KANGOO 1 15500 15500 526.35 00014925     N 0        ",
-                    "S 7700500155 I BUJIA CHAMPION RC87YCL 4 314.6 1258.4 251.68 00014925     N 0        ",
-                    "S 130C13191R I COLECC.DISTRIBUCION MOTOR 1 12345.85 12345.85 9025.48 00014925     N 0        ",
-                    "S 0225241934 COMPETITION 10W40 4L. 1 2920 2920 3766.84 00014925     N 0        ",
-
-                ]);
-        }
-
-        public function testDeletedDetalles()
-        {
-            $this->prepareDirectory();
-
-            $dbfFileName = $this->dbNames["Detalles"];
-            $comparator = new ComparatorDetalles;
-            $comparator->setCheckpoint($this->path . "DBS_TEST_DIRECTORY/{$dbfFileName}");
-            $this->simulateChange("Detalles");
-            $comparator->checkDiferences($this->limits["Detalles"][0], $this->limits["Detalles"][1]);
-            $deletedRecords = $comparator->getAcumulatedDeletedRecordsFound();
-            $deletedRecordsString = [];
-            foreach($deletedRecords as $record)
-                $deletedRecordsString[] = $comparator->toString($record);
-             
-            $this->assertEquals(
-                $deletedRecordsString, 
-                [
-                    "S 0225241934 COMPETITION 10W40 4L. 1 2920 2920 3766.84 00014925     N 0        ",
-                    "S 130C13191R I COLECC.DISTRIBUCION MOTOR 1 11281.85 11281.85 9025.48 00014925     N 0        ",
-                    "S 7700500155 I BUJIA CHAMPION RC87YCL 4 314.6 1258.4 251.68 00014925     N 0        ",
-                    "S 3551 REPARAR TAPA DE CILINDRO KANGOO 1 15500 15500 526.35 00014925     N 0        ",
-                    "S 115 CORREA 1 1100 1100 36.3 00014925     N 0        ",
-                    "S 555 TORNILLOS DE TAPA 1 1700 1700 39.93 00014925     N 0        ",
-                    "S 8200431051 I RX 0225241229 1 1029.06 1029.06 720.34 00014925     N 0        ",
-                    "S 8200108203 FILTRO DE ACEITE MOT.K4M 1 494.08 494.08 345.86 00014925     N 0        ",
-                    "S 2 MOTOR 1 32716.61 32716.61 0 00014925     N 0 CUARENTA DANIELA AB537IE     ",
-                ]);
-        }
-        
     }

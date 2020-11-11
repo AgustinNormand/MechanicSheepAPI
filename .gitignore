@@ -3,4 +3,4 @@
 .vscode/
 logs/
 .env
-DBS_FOR_TESTS/
+DATABASES/
