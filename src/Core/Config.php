@@ -45,6 +45,8 @@
             $this->configs["DB_DATABASE"] = getenv("DB_DATABASE", "root");
             $this->configs["DB_USERNAME"] = getenv("DB_USERNAME", "root");
             $this->configs["DB_PASSWORD"] = getenv("DB_PASSWORD", "");
+
+            $this->configs["BACKUP_EXTENSION"] = getenv("BACKUP_EXTENSION", ".bk");
         }
 
         public function get($name)
