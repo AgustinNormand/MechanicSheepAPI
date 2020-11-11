@@ -24,7 +24,7 @@ class Comparator
 
     private $dbfFilePath = null;
 
-    function __construct($databaseName)
+    public function __construct($databaseName)
     {
         $this->databaseName = $databaseName;
         $this->validatorName = "API\\Core\\Validators\\Validator{$databaseName}";
@@ -34,12 +34,11 @@ class Comparator
         $this->dbfFilePath = $dbfPath . $dbfName;
     }
     
-    function setCheckpoint(){
+    public function setCheckpoint(){
         copy($this->dbfFilePath, $this->dbfFilePath.'.bk');
     }
 
-
-    function checkDiferences(){
+    public function checkDiferences(){
         $this->oldTable = new Table($this->dbfFilePath.'.bk', $this->databaseName);
         $this->newTable = new Table($this->dbfFilePath, $this->databaseName);
 
@@ -59,12 +58,31 @@ class Comparator
         $this->closeDatabases();
     }
 
-    function checkNewRecords(){
+    public function getAcumulatedNewRecordsFound(){
+        return $this->newRecordsFound;
+    }
+
+    public function getAcumulatedDeletedRecordsFound(){
+        return $this->deletedRecordsFound;
+    }
+
+    public function getAcumulatedModifiedRecordsFound(){
+        return $this->modifiedRecordsFound;
+    }
+
+    public function resetAcumulatedRecords() ##Esto hay que hacerlo mucho mejor
+    {
+        $this->newRecordsFound = [];
+        $this->deletedRecordsFound = [];
+        $this->modifiedRecordsFound = [];
+    }
+
+    protected function checkNewRecords(){
         $index = $this->oldTable->getLastRecordIndex();
         $this->addNewRecords($this->newTable->getUndeletedRecordsAfterIndex($index));
     }
 
-    function checkModifiedAndDeletedRecords()
+    protected function checkModifiedAndDeletedRecords()
     {
         $index = $this->oldTable->getLastUndeletedRecordIndex();
         $oldRecordsAnalized = 0;
@@ -85,7 +103,7 @@ class Comparator
         }
     }
     
-    function exists($recordToSearch, $array){
+    protected function exists($recordToSearch, $array){
         $result = false;
         if($array == $this->modifiedRecordsFound)
         {
@@ -106,24 +124,12 @@ class Comparator
 
     }
 
-    function closeDatabases(){
+    protected function closeDatabases(){
         $this->newTable->close();
         $this->oldTable->close();
     }
 
-    function getAcumulatedNewRecordsFound(){
-        return $this->newRecordsFound;
-    }
-
-    function getAcumulatedDeletedRecordsFound(){
-        return $this->deletedRecordsFound;
-    }
-
-    function getAcumulatedModifiedRecordsFound(){
-        return $this->modifiedRecordsFound;
-    }
-
-    function addModifiedRecord($from, $to){
+    protected function addModifiedRecord($from, $to){
         if(!$this->exists($from, $this->modifiedRecordsFound) and $this->validatorName::isValid($from)){
             $index = count($this->modifiedRecordsFound);
             $this->modifiedRecordsFound[$index]["from"] = $from;
@@ -136,33 +142,26 @@ class Comparator
                 $this->addNewRecord($to);
     }
 
-    function addNewRecord($record){
+    protected function addNewRecord($record){
         if (!$this->exists($record, $this->newRecordsFound) and $this->validatorName::isValid($record)){
             $this->newRecordsFound[] = $record;
             Log::info("New: ", [$record]);
         }
     }
 
-    function addDeletedRecord($record){
+    protected function addDeletedRecord($record){
         if (!$this->exists($record, $this->deletedRecordsFound) and $this->validatorName::isValid($record)){
             $this->deletedRecordsFound[] = $record;
             Log::info("Deleted: ", [$record]);
         }
     }
 
-    function addNewRecords($records)
+    protected function addNewRecords($records)
     {
         foreach($records as $record)
         {
             $this->addNewRecord($record);
         }
-    }
-
-    function resetAcumulatedRecords() ##Esto hay que hacerlo mucho mejor
-    {
-        $this->newRecordsFound = [];
-        $this->deletedRecordsFound = [];
-        $this->modifiedRecordsFound = [];
     }
 }
 ?>
