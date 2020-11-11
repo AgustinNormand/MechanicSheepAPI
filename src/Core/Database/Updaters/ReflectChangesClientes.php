@@ -8,12 +8,13 @@ use API\Core\Database\Models\Cliente;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsClientes;
 use API\Core\Log;
 
-class ReflectChangesClientes extends ReflectChanges
+class ReflectChangesClientes
 {
     public function __construct()
     {
         $this->columns = DatabaseColumnsClientes::$columns;
     }
+
     public function newRecords($records)
     {
         foreach($records as $record)
@@ -29,6 +30,7 @@ class ReflectChangesClientes extends ReflectChanges
                 Cliente::create($data);
             }catch(Exception $e){
                 Log::Error("Error in ReflectChangesClientes -> newRecords ->", [$e, $record]);     
+                #die;
             }
         }
     }
@@ -53,7 +55,8 @@ class ReflectChangesClientes extends ReflectChanges
         {
             try{
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
-                ##
+                if($record["from"]->getIndex() != $record["to"]->getIndex())
+                    Log::warning("ReflectChangesClientes -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
                 $cliente = Cliente::find($record["from"]->getIndex());
                 $cliente->ID_CLIENTE = $record["to"]->getIndex();
                 foreach($this->columns as $column)
