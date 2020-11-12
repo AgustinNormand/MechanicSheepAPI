@@ -12,6 +12,7 @@ final class DatabaseColumnsDetalles
         'CANTIDAD' => 'sercan',
         'NUMERO_TRABAJO' => 'sernro',
         'SUCURSAL' => 'movsuc',
+        'COMPROBANTE' => 'movcom',
         'APELLIDO_CLIENTE' => 'serape',
         'NOMBRE_CLIENTE' => 'sernom',
         'PATENTE' => 'serpat',
