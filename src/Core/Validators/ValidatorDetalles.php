@@ -15,8 +15,8 @@ class ValidatorDetalles
         else
         {
             $result = false;
-            $columnName = "movcom";
-            $result = ($record->$columnName != "");
+            #$columnName = "movcom";
+            $result = ($record->get("COMPROBBANTE") != "");
         }
         return $result;
     }

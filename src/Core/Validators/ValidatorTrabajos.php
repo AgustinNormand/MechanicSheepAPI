@@ -15,8 +15,7 @@ class ValidatorTrabajos
         else
         {
             $result = false;
-            $columnName = "serest";
-            $result = ($record->$columnName == 'T');
+            $result = ($record->get("ESTADO") == 'T');
         }
         return $result;
     }
