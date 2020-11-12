@@ -9,6 +9,8 @@ use API\Core\Comparators\Comparator;
 
 use API\Core\Enum\DatabaseNames;
 
+use \Exception;
+
 
 class Watchdog{
 
@@ -100,7 +102,12 @@ class Watchdog{
     {
         $sleepTime = Config::getInstance()->get("VERIFY_MODIFICATIONS_TIMER");
         while (true){
-            $this->checkModifyDates();
+            try{
+                $this->checkModifyDates();
+            }
+            catch(Exception $e){
+                Log::error("Watchdog -> LoopForever -> Exception captured in last instance", [$e]);
+            }
             sleep($sleepTime);
         }
     }
