@@ -13,11 +13,6 @@
 
     $config = Config::getInstance();
 
-    $log = new Logger("MechanicSheepAPI");
-    $handler = new StreamHandler($config->get("LOG_PATH"));
-    $handler->setLevel($config->get("LOG_LEVEL"));
-    $log->pushHandler($handler);
-
     $capsule = new Capsule;
     $capsule->addConnection([
         "driver" => $config->get("DB_CONNECTION"),
@@ -30,4 +25,10 @@
      $capsule->setAsGlobal();
      $capsule->bootEloquent();
 
-    
+     $config->loadConfigurations();
+
+     $log = new Logger("MechanicSheepAPI");
+     $handler = new StreamHandler($config->get("LOG_PATH"));
+     $handler->setLevel($config->get("LOG_LEVEL"));
+     $log->pushHandler($handler);
+     
