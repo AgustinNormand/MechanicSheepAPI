@@ -31,22 +31,45 @@ class Record
     ];
 
     public function __construct($index, $data, $isDeleted=false)
-    {
+    { 
         $this->isDeleted = $isDeleted;
         $this->data = $data;
         $this->index = $index;
-        foreach($this->data as $value)
+
+        $keys = array_keys($this->data);
+        foreach($keys as $key){
+            $value = $this->data[$key];
             if(!is_null($value) and is_string($value)){
                 for ( $pos=0; $pos < strlen($value); $pos ++ ) { //Recorro todos los caracteres del dato
                     $byte = substr($value, $pos);
                     $ordValue = ord($byte);
                     if ($ordValue >= 128){ //Si hay algún caracter que no sea válido
-                        $key = array_search($value, $this->data);
                         $this->data[$key] = $this->fixStringErrors($value);
                         break;
                     }
                 }
-            }   
+            }
+        }
+        /*
+        foreach($this->data as $value)
+            if(!is_null($value) and is_string($value)){
+                $key = array_search($value, $this->data);
+                for ( $pos=0; $pos < strlen($value); $pos ++ ) { //Recorro todos los caracteres del dato
+                    $byte = substr($value, $pos);
+                    $ordValue = ord($byte);
+                    if ($ordValue >= 128){ //Si hay algún caracter que no sea válido
+                        
+                        if($index == 1658){
+                            var_dump($value);
+                            echo $key;
+                            die;
+                        }
+                        $this->data[$key] = $this->fixStringErrors($value);
+                        break;
+                    }
+                }
+            } 
+            */
     }
 
     public function __toString()
