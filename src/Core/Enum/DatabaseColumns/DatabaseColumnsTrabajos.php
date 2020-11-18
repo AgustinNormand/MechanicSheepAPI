@@ -7,17 +7,17 @@ final class DatabaseColumnsTrabajos
 
     public static $columns = 
     [
-        'NUMERO' => 'sernro',
+        'ID_TRABAJO' => 'sernro',
         'FECHA' => 'serfec',
-        'PATENTE' => 'serpat',
-        'MODELO' => 'sermod',
-        'APELLIDO' => 'serape',
-        'NOMBRE' => 'sernom',
-        'ESTADO' => 'serest',
         'DESCRIPCION' => 'seracu1',
-        'EMPLEADO' => 'sertec',
         'KILOMETROS' => 'serklm',
-        'FECHA_FINALIZACION' => 'serter',
+        'PATENTE' => 'serpat', #IDVEHICULO
+        'MODELO' => 'sermod', #
+        'APELLIDO' => 'serape', #
+        'NOMBRE' => 'sernom', #
+        'ESTADO' => 'serest', #NO ESTA RELACIONADO CON TRABAJO
+        'EMPLEADO' => 'sertec', #NO ESTA EN LA BASE
+        'FECHA_FINALIZACION' => 'serter', #NO ESTA EN LA BASE
         #'COSTO_REPUESTOS' => 'sercosr',
         #'COSTO_MANO_OBRA' => 'sercosm',
         #'TOTAL' => 'sertot',
@@ -25,8 +25,8 @@ final class DatabaseColumnsTrabajos
         #'FORMA_PAGO' => 'movcta',
         #'COMPROBANTE' => 'movcom',
         #'TIPO_FACTURA' => 'movtip',
-        'NRO_SUCURSAL' => 'movsuc',
-        'NRO_MOVIMIENTO' => 'movnro',
+        'NRO_SUCURSAL' => 'movsuc', # NO ESTA RELACIONADO CON TRABAJO
+        'NRO_MOVIMIENTO' => 'movnro', # NO ESTA RELACIONADO CON TRABAJO
     ];
 
 }
