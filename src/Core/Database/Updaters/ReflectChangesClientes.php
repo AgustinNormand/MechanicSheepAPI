@@ -14,7 +14,7 @@ class ReflectChangesClientes
     {
         $this->columns = DatabaseColumnsClientes::$columns;
     }
-
+/*
     public function newRecords($records)
     {
         foreach($records as $record)
@@ -32,6 +32,28 @@ class ReflectChangesClientes
                 Log::Error("Error in ReflectChangesClientes -> newRecords ->", [$e, $record]);     
                 #die;
             }
+        }
+    }
+*/
+
+    public function newRecords($records)
+    {
+        foreach($records as $record)
+        {
+            try{
+                Log::Debug("Adding new record to database:", [$record]);
+                $data = [];
+                foreach($this->columns as $column){
+                    $key = array_search($column, $this->columns);
+                    $data[$key] = $record->get($key);
+                }
+                ##$data['ID_CLIENTE'] = $record->getIndex();
+                Cliente::create($data);
+            }catch(Exception $e){
+                Log::Error("Error in ReflectChangesClientes -> newRecords ->", [$e, $record]);     
+                #die;
+            }
+            #die;
         }
     }
 
