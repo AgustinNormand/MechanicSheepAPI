@@ -4,9 +4,9 @@ namespace API\Core\Database\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Cliente extends Eloquent
+class Modelo extends Eloquent
 {
-    protected $table = "personas";
-    protected $primaryKey = 'ID_PERSONA';
+    protected $table = "modelos";
+    protected $primaryKey = 'ID_MODELO';
     protected $guarded = [];
 }
