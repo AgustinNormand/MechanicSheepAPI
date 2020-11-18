@@ -47,7 +47,6 @@
             $this->configs["LOG_PATH"] = $this->getFromDatabase("LOG_PATH", "/logs/");
 
             $this->configs["VERIFY_MODIFICATIONS_TIMER"] = $this->getFromDatabase("VERIFY_MODIFICATIONS_TIMER", 5);
-            $this->configs["AFTER_MODIFICATIONS_TIMER"] = $this->getFromDatabase("AFTER_MODIFICATIONS_TIMER", 30);
 
             $this->configs["ONLY_HISTORICAL_RECORDS"] = $this->getFromDatabase("ONLY_HISTORICAL_RECORDS", "true");
 
