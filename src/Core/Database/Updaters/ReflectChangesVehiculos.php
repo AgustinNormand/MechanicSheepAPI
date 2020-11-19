@@ -18,59 +18,87 @@ class ReflectChangesVehiculos
         $this->columns = DatabaseColumnsVehiculos::$columns;
     }
 
+    private function obtenerOCrearMarca($marca){
+        if(strlen($marca) == 0)
+            $marca = "SinMarca";
+
+        $marca = Marca::firstOrCreate(
+            ['RAZON_SOCIAL' => $marca]
+        );
+        return $marca;
+    }
+
+    private function obtenerOCrearModelo($modelo, $marca){
+        if(strlen($modelo) == 0)
+            $modelo = "SinModelo";
+            $modelo = Modelo::firstOrCreate(
+            ['NOMBRE_FANTASIA' => $modelo],
+            ['ID_MARCA' => $marca->ID_MARCA]
+        );
+        return $modelo;
+    }
+
+    private function obtenerOSetearNuloPersona($nombre, $apellido){
+        $cliente = Cliente::where([
+            ["APELLIDO", $apellido],
+            ["NOMBRE", $nombre]])->get();
+
+        if((count($cliente) == 0) or (count($cliente) > 1)){
+            Log::Warning("Error in ReflectChangesVehiculos -> newRecords -> El select de cliente a la db, con Nombre y Apellido exacto devolvió 0 o más de uno. Se dejó al vehiculo sin dueño", [$apellido, $nombre]);
+            $cliente = [Cliente::firstOrCreate(
+                ["NOMBRE" => "ClienteNulo"],
+                ["APELLIDO" => "ClienteNulo"]
+            )];                  
+        }
+        return $cliente[0];
+    }
+
+    private function crearVehiculo($record, $modelo, $persona){
+        Vehiculo::create([
+            "PATENTE" => $record->get("PATENTE"),
+            "ID_MODELO" => $modelo->ID_MODELO,
+            "VIN" => $record->get("VIN"),
+            "ANIO" => $record->get("ANIO"),
+            "NUMERO_MOTOR" => $record->get("NUMERO_MOTOR"),
+            "ID_PERSONA" => $persona->ID_PERSONA,
+        ]);
+    }
+
+    private function actualizarVehiculo($vehiculo, $record, $persona){
+        $vehiculo->VIN = $record->get("VIN");
+        $vehiculo->ANIO = $record->get("ANIO");
+        $vehiculo->NUMERO_MOTOR = $record->get("NUMERO_MOTOR");
+        $vehiculo->ID_PERSONA = $persona->ID_PERSONA;
+        $vehiculo->save();
+    }
+
     public function newRecords($records)
     {
         foreach($records as $record)
         {
             try{
                 Log::Debug("Adding new record to database:", [$record]);
-                $data = [];
-                $data["PATENTE"] = $record->get("PATENTE");
-                $data["VIN"] = $record->get("VIN");
-                $data["ANIO"] = $record->get("ANIO");
-                $data["NUMERO_MOTOR"] = $record->get("NUMERO_MOTOR");
 
-                $apellidoCliente = $record->get("APELLIDO");
-                $nombreCliente = $record->get("NOMBRE");
+                $marca = $this->obtenerOCrearMarca($record->get("MARCA"));
 
-                $cliente = Cliente::where([
-                    ["APELLIDO", $apellidoCliente],
-                    ["NOMBRE", $nombreCliente]])->get();
+                $modelo = $this->obtenerOCrearModelo($record->get("MODELO"), $marca);
 
-                if((count($cliente) == 0) or (count($cliente) > 1)){
-                    Log::Warning("Error in ReflectChangesVehiculos -> newRecords -> El select de cliente a la db, con Nombre y Apellido exacto devolvió 0 o más de uno. Se dejó al vehiculo sin dueño", [$record]);
-                    $cliente = [Cliente::firstOrCreate(
-                        ["NOMBRE" => "ClienteNulo"],
-                        ["APELLIDO" => "ClienteNulo"]
-                    )];                  
-                } 
-                $data["ID_PERSONA"] = $cliente[0]->ID_PERSONA;
+                $persona = $this->obtenerOSetearNuloPersona($record->get("NOMBRE"), $record->get("APELLIDO"));
 
-                $nombreMarca = $record->get("MARCA");
-                if(strlen($nombreMarca) == 0)
-                    $nombreMarca = "SinMarca";
-
-                $marca = Marca::firstOrCreate(
-                    ['RAZON_SOCIAL' => $nombreMarca]
-                );
-
-                $nombreModelo = $record->get("MODELO");
-                if(strlen($nombreModelo) == 0)
-                    $nombreModelo = "SinModelo";
-                $modelo = Modelo::firstOrCreate(
-                    ['NOMBRE_FANTASIA' => $nombreModelo],
-                    ['ID_MARCA' => $marca->ID_MARCA]
-                );
-
-                $modelo->ID_MARCA = $marca->ID_MARCA;
-                $modelo->save();
-
-                $data["ID_MODELO"] = $modelo->ID_MODELO;
-                Vehiculo::create($data);
-                
+                $vehiculo = Vehiculo::where([
+                    ["PATENTE", $record->get("PATENTE")],
+                    ["ID_MODELO", $modelo->ID_MODELO]
+                ])->get();
+                if(count($vehiculo) == 0)
+                    $vehiculo = $this->crearVehiculo($record, $modelo, $persona);
+                else
+                    if(count($vehiculo) == 1)
+                        $vehiculo = $this->actualizarVehiculo($vehiculo[0], $record, $persona);
+                    else
+                        Log::Error("Error in ReflectChangesVehiculos -> newRecords -> El select de vehiculo a la db, dio más de 1", [$record]);
+                        
             }catch(Exception $e){
                 Log::Error("Error in ReflectChangesVehiculos -> newRecords ->", [$e, $record]);     
-
                 die;
             }
         }
