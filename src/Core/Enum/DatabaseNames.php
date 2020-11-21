@@ -17,8 +17,8 @@ class DatabaseNames
         return[
             self::CLIENTES,
             self::VEHICULOS,
-            self::DETALLES,
             self::TRABAJOS,
+            self::DETALLES,
         ];
     }
 }
