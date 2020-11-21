@@ -36,6 +36,9 @@ class Record
         $this->data = $data;
         $this->index = $index;
 
+        //if($this->index == 5153)
+       // {var_dump($this);}
+
         $keys = array_keys($this->data);
         foreach($keys as $key){
             $value = $this->data[$key];
@@ -74,15 +77,25 @@ class Record
 
     public function __toString()
     {
+        /*
         $result = "";
         $result = $this->index . ' ';
         foreach($this->data as $value)
             $result = $result . $value . ' ';
         return $result;
+        */
+
+        $result = "{INDEX: " . $this->index . ',';
+        $keys = array_keys($this->data);
+        foreach($keys as $key)
+            $result = $result . " " . $key . ': ' . $this->data[$key] . ",";
+        $result = $result . "}";
+        return $result;
     }
 
     public function getIndex()
     {
+        //var_dump($this);
         return $this->index;
     }
 
