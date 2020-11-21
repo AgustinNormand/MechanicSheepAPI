@@ -18,7 +18,7 @@ class ReflectChangesVehiculos
         $this->columns = DatabaseColumnsVehiculos::$columns;
     }
 
-    private function obtenerOCrearMarca($marca){
+    public function obtenerOCrearMarca($marca){
         if(strlen($marca) == 0)
             $marca = "SinMarca";
 
@@ -28,7 +28,7 @@ class ReflectChangesVehiculos
         return $marca;
     }
 
-    private function obtenerOCrearModelo($modelo, $marca){
+    public function obtenerOCrearModelo($modelo, $marca){
         if(strlen($modelo) == 0)
             $modelo = "SinModelo";
             $modelo = Modelo::firstOrCreate(
@@ -38,7 +38,7 @@ class ReflectChangesVehiculos
         return $modelo;
     }
 
-    private function obtenerOSetearNuloPersona($nombre, $apellido){
+    public function obtenerOSetearNuloPersona($nombre, $apellido){
         $cliente = Cliente::where([
             ["APELLIDO", $apellido],
             ["NOMBRE", $nombre]])->get();
