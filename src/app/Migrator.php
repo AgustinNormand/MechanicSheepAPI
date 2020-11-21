@@ -16,14 +16,24 @@
             foreach($databaseNames as $databaseName)
             {
                 Log::Info("Begin migration of {$databaseName}");
+                $validatorName = "API\\Core\\Validators\\Validator{$databaseName}";
                 $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
                 $fullPath = $dbfPath . $dbfName;
                 $table = new Table($fullPath, $databaseName);
-                $records = $table->getAllUndeletedRecords();
+                $undeletedRecords = $table->getAllUndeletedRecords();
+                $validRecords = [];
+                foreach($undeletedRecords as $undeletedRecord)
+                    if($validatorName::isValid($undeletedRecord))
+                        $validRecords[] = $undeletedRecord;
+                /** */
+                //echo count($validRecords);
+                //echo PHP_EOL;
+                //continue;
+                /** */
                 $reflectChangesName = "reflectChanges" . $databaseName;
                 $reflectChangesClassName = "API\\Core\\Database\\Updaters\\" . ucfirst($reflectChangesName);
                 $this->$reflectChangesName = new $reflectChangesClassName;
-                $this->$reflectChangesName->newRecords($records);
+                $this->$reflectChangesName->newRecords($validRecords);
                 Log::Info("Finish migration of {$databaseName}");
             }
         }
