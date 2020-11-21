@@ -7,17 +7,18 @@ final class DatabaseColumnsTrabajos
 
     public static $columns = 
     [
-        'ID_TRABAJO' => 'sernro',
+        'NRO_TRABAJO' => 'sernro',
         'FECHA' => 'serfec',
         'DESCRIPCION' => 'seracu1',
         'KILOMETROS' => 'serklm',
         'PATENTE' => 'serpat', #IDVEHICULO
         'MODELO' => 'sermod', #
+        'MARCA' => 'sermar', #
         'APELLIDO' => 'serape', #
         'NOMBRE' => 'sernom', #
         'ESTADO' => 'serest', #NO ESTA RELACIONADO CON TRABAJO
         'EMPLEADO' => 'sertec', #NO ESTA EN LA BASE
-        'FECHA_FINALIZACION' => 'serter', #NO ESTA EN LA BASE
+        #'FECHA_FINALIZACION' => 'serter', #NO ESTA EN LA BASE
         #'COSTO_REPUESTOS' => 'sercosr',
         #'COSTO_MANO_OBRA' => 'sercosm',
         #'TOTAL' => 'sertot',

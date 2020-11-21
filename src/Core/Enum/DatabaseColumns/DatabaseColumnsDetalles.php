@@ -10,7 +10,7 @@ final class DatabaseColumnsDetalles
         'CODIGO' => 'sercod',
         'DESCRIPCION' => 'serdes',
         'CANTIDAD' => 'sercan',
-        'NUMERO_TRABAJO' => 'sernro',
+        'NRO_TRABAJO' => 'sernro',
         'SUCURSAL' => 'movsuc',
         'COMPROBANTE' => 'movcom',
         'APELLIDO_CLIENTE' => 'serape',
