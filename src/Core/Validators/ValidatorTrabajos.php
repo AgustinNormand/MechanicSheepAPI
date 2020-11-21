@@ -3,6 +3,7 @@
 namespace API\Core\Validators;
 
 use API\Core\Config;
+use API\Core\Log;
 
 class ValidatorTrabajos
 {
@@ -17,6 +18,10 @@ class ValidatorTrabajos
             $result = false;
             $result = ($record->get("ESTADO") == 'T');
         }
+
+        //if(!$result)
+            //Log::info("Record not valid in ValidatorClientes", [$record]);
+
         return $result;
     }
 }
