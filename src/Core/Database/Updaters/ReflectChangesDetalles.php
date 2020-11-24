@@ -8,10 +8,8 @@ use API\Core\Database\Models\Detalle;
 use API\Core\Database\Models\Marca;
 use API\Core\Database\Models\Modelo;
 use API\Core\Database\Models\Trabajo;
-use API\Core\Database\Models\Vehiculo;
+use API\Core\Database\Models\Cliente;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsDetalles;
-use API\Core\Database\Updaters\ReflectChangesVehiculos;
-use API\Core\Database\Updaters\ReflectChangesTrabajos;
 
 use API\Core\Log;
 
@@ -22,52 +20,29 @@ class ReflectChangesDetalles
         $this->columns = DatabaseColumnsDetalles::$columns;
     }
 
-    /* Habria que merjoarla, refactorizar y hacer más prolijo el codigo */
     private function createTrabajo($record){
-        //echo "Detalle cargado" . PHP_EOL;
-        //$patenteAuto = $record->get("PATENTE");
-        $vehiculos = Vehiculo::where("PATENTE", $record->get("PATENTE"))->get();
-        //Si hay mas de 1?
-        if(count($vehiculos) == 0){
-            //Doy de alta el vehiculo
-            $reflectChangesVehiculo = new ReflectChangesVehiculos;
 
-            $marca = $reflectChangesVehiculo->obtenerOCrearMarca("");
+        $patente = $record->get("PATENTE");
 
-            $modelo = $reflectChangesVehiculo->obtenerOCrearModelo("", $marca);
+        $idMarca = Marca::obtenerOCrearMarca("")->ID_MARCA;
 
-            $persona = $reflectChangesVehiculo->obtenerOSetearNuloPersona($record->get("NOMBRE"), $record->get("APELLIDO_CLIENTE"));
+        $idModelo = Modelo::obtenerOCrearModelo("", $idMarca)->ID_MODELO;
 
-            $vehiculo = Vehiculo::create([
-                "PATENTE" => $record->get("PATENTE"), 
-                "ID_MODELO" => $modelo->ID_MODELO,
-                "ID_PERSONA" => $persona->ID_PERSONA
-            ]);
-
-            //echo "Hay un detalle, asignado a un vehiculo, que no está en el sistema" . PHP_EOL;
-        }else
-        {
-            $vehiculo = $vehiculos[0];
-            //No necesito dar de alta el vehiculo
-            //Podría ser que me de cuenta aca que el vehiculo cambio de dueño con nombre y apellido cliente.
-        }
+        $idPersona = Cliente::obtenerExactoOSetearNuloPersona($record->get("NOMBRE_CLIENTE"), $record->get("APELLIDO_CLIENTE"))->ID_PERSONA;
 
         $numeroTrabajo = $record->get("NRO_TRABAJO");
-                if(strlen($numeroTrabajo) == 0)
-                    $numeroTrabajo = null;
 
-        $reflectChangesTrabajo = new ReflectChangesTrabajos();
+        $descripcion = $record->get("DESCRIPCION");
 
-        $servicio = $reflectChangesTrabajo->obtenerOSetearNuloServicio($record->get("DESCRIPCION"));
+        $trabajo = Trabajo::createTrabajo($patente, $idModelo, $idPersona, $numeroTrabajo, $descripcion);
 
-        $trabajo = Trabajo::create([
-            "NRO_TRABAJO" => $numeroTrabajo,
-            "ID_SERVICIO" => $servicio->ID_SERVICIO,
-            "ID_VEHICULO" => $vehiculo->ID_VEHICULO
-        ]);
-        return $trabajo->ID_TRABAJO;
+        $return = null;
+
+        if(!is_null($trabajo))
+            $return = $trabajo;
+
+        return $return;
     }
-    /* Habria que merjoarla, refactorizar y hacer más prolijo el codigo */
 
     private function isLoadedDetalle($record){
         $result = false;
@@ -94,13 +69,14 @@ class ReflectChangesDetalles
 
         /* BLOQUE PARA MEJORAR */
         if(count($trabajos) == 0){ /* El detalle no pertenece a ningún trabajo */
-            //LO CREO
             if($this->isLoadedDetalle($record))
             {
-                //150
                 $idTrabajo = $this->createTrabajo($record);
-                Log::alert("Detalle cuyo NRO_TRABAJO no se pudo encontrar en la db, se creo el trabajo.", [$record, $idTrabajo]);
-                //echo "En teoria creó el trabajo " . $idTrabajo . PHP_EOL;
+                if(!is_null($idTrabajo))
+                    Log::alert("Detalle cuyo NRO_TRABAJO no se pudo encontrar en la db, se creo el trabajo.", [$record, $idTrabajo]);
+                else
+                    Log::alert("Detalle cuyo NRO_TRABAJO no se pudo encontrar en la db, se intentó crear el trabajo y falló.", [$record, $idTrabajo]);
+                    
             } else{
                 //Lo agrego al trabajo padre que almacena todos los detalles sin trabajo
                 $trabajo = Trabajo::firstOrCreate(

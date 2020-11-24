@@ -5,9 +5,11 @@ namespace API\Core\Database\Updaters;
 use \Exception;
 
 use API\Core\Database\Models\Trabajo;
+use API\Core\Database\Models\Cliente;
 use API\Core\Database\Models\Marca;
 use API\Core\Database\Models\Modelo;
 use API\Core\Database\Models\Servicio;
+use API\Core\Database\Models\TrabajoEmpleadoSector;
 use API\Core\Database\Models\Vehiculo;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsTrabajos;
 use API\Core\Database\Updaters\ReflectChangesVehiculos;
@@ -118,32 +120,34 @@ class ReflectChangesTrabajos
         foreach($records as $record)
         {
             try{
-                //$record->getIndex();
                 Log::Debug("Adding new record to database:", [$record]);
-                //var_dump($record);
-                //die;
-                $vehiculo = $this->obtenerVehiculo($record);
-                //if(is_null($vehiculo)){
+ 
+                $patente = $record->get("PATENTE");
+                $idMarca = Marca::obtenerOCrearMarca($record->get("MARCA"))->ID_MARCA;
+                $idModelo = Modelo::obtenerOCrearModelo($record->get("MODELO"), $idMarca)->ID_MODELO;
+                $vehiculo = Vehiculo::obtenerVehiculo($patente, $idModelo);
+                if(is_null($vehiculo)){
+                    $persona = Cliente::obtenerExactoOSetearNuloPersona($record->get("NOMBRE"), $record->get("APELLIDO"));
+                    $vehiculo = Vehiculo::crearVehiculo($patente, $persona->ID_PERSONA, $idModelo);
+                }
 
-                //}
-                    //continue;
-
-                $servicio = $this->obtenerOSetearNuloServicio($record->get("DESCRIPCION"));
+                $servicio = Servicio::obtenerOSetearNuloServicio($record->get("DESCRIPCION"));
 
                 $numeroTrabajo = $record->get("NRO_TRABAJO");
                 if(strlen($numeroTrabajo) == 0)
                     $numeroTrabajo = null;
 
-                //$duplicated = $this->getAndSetIfDuplicated($numeroTrabajo);
-
-                Trabajo::create([
+                $trabajo = Trabajo::create([
                     "NRO_TRABAJO" => $numeroTrabajo, 
                     "FECHA" => $record->get("FECHA"),
                     "KILOMETROS" => $record->get("KILOMETROS"),
                     "ID_SERVICIO" => $servicio->ID_SERVICIO,
                     "ID_VEHICULO" => $vehiculo->ID_VEHICULO,
-                    //"DUPLICATED" => $duplicated,
                 ]);
+
+                TrabajoEmpleadoSector::asignarTrabajoAEmpleadoASector($record->get("EMPLEADO"),
+                                                                      $trabajo->ID_TRABAJO,
+                                                                      $record->get("NRO_SUCURSAL"));
             }catch(Exception $e){
                 Log::Error("Error in ReflectChangesTrabajos -> newRecords ->", [$e, $record]);
                 die;
