@@ -10,4 +10,11 @@ class Servicio extends Eloquent
     protected $primaryKey = 'ID_SERVICIO';
     protected $guarded = [];
 
+    public static function obtenerOSetearNuloServicio($descripcion){
+        if(strlen($descripcion) == 0)
+            $descripcion = "SinDescripcion";
+        $servicio = self::firstOrCreate(["NOMBRE" => $descripcion]);
+        return $servicio;
+    }
+
 }
