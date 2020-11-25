@@ -15,12 +15,12 @@ class Empleado extends Eloquent
         if(strlen($nombre) == 0)
             $nombre = "EmpleadoNulo";
 
-        $idTipoEmpleado = TipoEmpleados::firstOrCreate(["PUESTO" => "Empleado"])->ID_TIPOEMPLEADO;
+        $tipoEmpleado = TipoEmpleados::create(["PUESTO" => "Empleado"]);
     
         $empleado = self::firstOrCreate(
             ["NOMBRE" => $nombre],
             ["APELLIDO" => "SinApellido",
-            "ID_TIPOEMPLEADO" => $idTipoEmpleado]
+            "ID_TIPOEMPLEADO" => $tipoEmpleado->ID_TIPOEMPLEADO]
         );
 
         return $empleado->ID_EMPLEADO;
