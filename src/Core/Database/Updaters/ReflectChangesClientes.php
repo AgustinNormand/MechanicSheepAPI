@@ -28,7 +28,7 @@ class ReflectChangesClientes
                 }
                 Cliente::create($data);
             }catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> newRecords ->", [$e, $record]);     
+                Log::Error("ReflectChangesClientes -> newRecords ->", [$e, $record]);     
             }
         }
     }
@@ -42,7 +42,7 @@ class ReflectChangesClientes
                 $cliente = Cliente::find($record->getIndex());
                 $cliente->delete();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> deletedRecords ->", [$e, $record]);
+                Log::Error("ReflectChangesClientes -> deletedRecords ->", [$e, $record]);
             }
         }
     }
@@ -64,7 +64,7 @@ class ReflectChangesClientes
                 }
                 $cliente->save();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesClientes -> modifiedRecords ->", [$e, $record]);
+                Log::Error("ReflectChangesClientes -> modifiedRecords ->", [$e, $record]);
             }
         }
     }

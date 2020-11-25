@@ -118,7 +118,7 @@ class ReflectChangesDetalles
                 ]);
 
             }catch(Exception $e){
-                Log::Error("Error in ReflectChangesDetalles -> newRecords ->", [$e, $record]);     
+                Log::Error("ReflectChangesDetalles -> newRecords ->", [$e, $record]);     
                 #die;
             }
         }
@@ -133,7 +133,7 @@ class ReflectChangesDetalles
                 $detalle = Detalle::find($record->getIndex());
                 $detalle->delete();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesDetalles -> deletedRecords ->", [$e, $record]);
+                Log::Error("ReflectChangesDetalles -> deletedRecords ->", [$e, $record]);
             }
         }
     }
@@ -155,7 +155,7 @@ class ReflectChangesDetalles
                 }
                 $detalle->save();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesDetalle -> modifiedRecords ->", [$e, $record]);
+                Log::Error("ReflectChangesDetalle -> modifiedRecords ->", [$e, $record]);
             }
         }
     }

@@ -30,7 +30,7 @@ class Vehiculo extends Eloquent
                 //if(count($vehiculo) == 1)
                     //$vehiculo = self::actualizarVehiculo($vehiculo[0], $idPersona, $record);
                 //else
-                    //Log::Error("Error in ReflectChangesVehiculos -> newRecords -> El select de vehiculo a la db, dio más de 1", [$record]);
+                    //Log::Error("ReflectChangesVehiculos -> newRecords -> El select de vehiculo a la db, dio más de 1", [$record]);
     }
 
     public static function actualizarVehiculo($vehiculo, $idPersona, $record){

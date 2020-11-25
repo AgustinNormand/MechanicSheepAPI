@@ -16,7 +16,7 @@ class Cliente extends Eloquent
             ["NOMBRE", $nombre]])->get();
 
         if((count($cliente) == 0) or (count($cliente) > 1)){
-            //Log::Warning("Error in ReflectChangesVehiculos -> newRecords -> El select de cliente a la db, con Nombre y Apellido exacto devolvió 0 o más de uno. Se dejó al vehiculo sin dueño", [$apellido, $nombre]);
+            //Log::Warning("ReflectChangesVehiculos -> newRecords -> El select de cliente a la db, con Nombre y Apellido exacto devolvió 0 o más de uno. Se dejó al vehiculo sin dueño", [$apellido, $nombre]);
             $cliente = [Cliente::firstOrCreate(
                 ["NOMBRE" => "ClienteNulo"],
                 ["APELLIDO" => "ClienteNulo"]

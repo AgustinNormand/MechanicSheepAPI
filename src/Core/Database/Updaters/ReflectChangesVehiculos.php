@@ -43,7 +43,7 @@ class ReflectChangesVehiculos
                     Log::Error("ReflectChangesVehiculos -> newRecords -> Vehiculo no creado", [$record]);
                         
             }catch(Exception $e){
-                Log::Error("Error in ReflectChangesVehiculos -> newRecords ->", [$e, $record]);     
+                Log::Error("ReflectChangesVehiculos -> newRecords ->", [$e, $record]);     
                 die;
             }
         }
@@ -58,7 +58,7 @@ class ReflectChangesVehiculos
                 $vehiculo = Vehiculo::find($record->getIndex());
                 $vehiculo->delete();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesVehiculo -> deletedRecords ->", [$e, $record]);
+                Log::Error("ReflectChangesVehiculo -> deletedRecords ->", [$e, $record]);
             }
         }
     }
@@ -80,7 +80,7 @@ class ReflectChangesVehiculos
                 }
                 $vehiculo->save();
             } catch(Exception $e){
-                Log::Error("Error in ReflectChangesVehiculo -> modifiedRecords ->", [$e, $record]);
+                Log::Error(" ReflectChangesVehiculo -> modifiedRecords ->", [$e, $record]);
             }
         }
     }
