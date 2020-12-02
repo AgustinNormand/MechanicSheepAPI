@@ -15,7 +15,7 @@ class Empleado extends Eloquent
         if(strlen($nombre) == 0)
             $nombre = "EmpleadoNulo";
 
-        $tipoEmpleado = TipoEmpleados::create(["PUESTO" => "Empleado"]);
+        $tipoEmpleado = TipoEmpleados::firstOrcreate(["PUESTO" => "Empleado"]); //Creo que eso arregla que cree miles de tipoempleado
     
         $empleado = self::firstOrCreate(
             ["NOMBRE" => $nombre],
