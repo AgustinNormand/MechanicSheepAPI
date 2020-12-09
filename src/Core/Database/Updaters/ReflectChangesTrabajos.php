@@ -70,7 +70,7 @@ class ReflectChangesTrabajos
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $trabajo = Trabajo::find($record->getIndex());
+                $trabajo = Trabajo::where("NRO_TRABAJO", $record->get("NRO_TRABAJO"))->first();
                 $trabajo->delete();
             } catch(Exception $e){
                 Log::Error("ReflectChangesTrabajos -> deletedRecords ->", [$e, $record]);
@@ -80,12 +80,13 @@ class ReflectChangesTrabajos
 
     public function modifiedRecords($records)
     {
-        foreach($records as $record)
+        Log::Error("ReflectChangesTrabajo -> modifiedRecords -> This function was not prepared for use.");
+        /*foreach($records as $record)
         {
             try{
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
-                if($record["from"]->getIndex() != $record["to"]->getIndex())
-                    Log::warning("ReflectChangesTrabajo -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
+                #if($record["from"]->getIndex() != $record["to"]->getIndex())
+                #    Log::warning("ReflectChangesTrabajo -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
                 $trabajo = Trabajo::find($record["from"]->getIndex());
                 $trabajo->ID_TRABAJO = $record["to"]->getIndex();
                 foreach($this->columns as $column)
@@ -96,7 +97,7 @@ class ReflectChangesTrabajos
                 $trabajo->save();
             } catch(Exception $e){
                 Log::Error("ReflectChangesTrabajo -> modifiedRecords ->", [$e, $record]);
-            }
+            }*/
         }
     }
 }

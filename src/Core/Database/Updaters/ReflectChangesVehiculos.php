@@ -55,7 +55,8 @@ class ReflectChangesVehiculos
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $vehiculo = Vehiculo::find($record->getIndex());
+                $vehiculo = Vehiculo::where("PATENTE", $record->get("PATENTE"))->first();
+                //Si hay mas de uno debería tomar una acicon diferente.
                 $vehiculo->delete();
             } catch(Exception $e){
                 Log::Error("ReflectChangesVehiculo -> deletedRecords ->", [$e, $record]);
@@ -69,15 +70,18 @@ class ReflectChangesVehiculos
         {
             try{
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
-                if($record["from"]->getIndex() != $record["to"]->getIndex())
-                    Log::warning("ReflectChangesVehiculo -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
-                $vehiculo = Vehiculo::find($record["from"]->getIndex());
-                $vehiculo->ID_VEHICULO = $record["to"]->getIndex();
-                foreach($this->columns as $column)
-                {
-                    $key = array_search($column, $this->columns);
-                    $vehiculo->$key = $record["to"]->get($key);
-                }
+                #if($record["from"]->getIndex() != $record["to"]->getIndex())
+                #    Log::warning("ReflectChangesVehiculo -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
+                $vehiculo = Vehiculo::where("PATENTE", $record["from"]->get("PATENTE"))->first();
+                
+                $marca = Marca::obtenerOCrearMarca($record["to"]->get("MARCA"));
+                $modelo = Modelo::obtenerOCrearModelo($record["to"]->get("MODELO"), $marca->ID_MARCA);
+
+                $vehiculo->PATENTE = $record["to"]->get("PATENTE");
+                $vehiculo->VIN = $record["to"]->get("VIN");
+                $vehiculo->ANIO = $record["to"]->get("ANIO");
+                $vehiculo->NUMERO_MOTOR = $record["to"]->get("NUMERO_MOTOR");
+                $vehiculo->ID_MODELO = $modelo->ID_MODELO;
                 $vehiculo->save();
             } catch(Exception $e){
                 Log::Error(" ReflectChangesVehiculo -> modifiedRecords ->", [$e, $record]);

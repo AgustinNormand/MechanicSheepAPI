@@ -130,7 +130,7 @@ class ReflectChangesDetalles
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $detalle = Detalle::find($record->getIndex());
+                $detalle = Detalle::where($record->getIndex())->first();
                 $detalle->delete();
             } catch(Exception $e){
                 Log::Error("ReflectChangesDetalles -> deletedRecords ->", [$e, $record]);
@@ -140,7 +140,8 @@ class ReflectChangesDetalles
 
     public function modifiedRecords($records)
     {
-        foreach($records as $record)
+        Log::Error("ReflectChangesDetalles -> modifiedRecords -> This function was not prepared for use.");
+       /* foreach($records as $record)
         {
             try{
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
@@ -157,6 +158,6 @@ class ReflectChangesDetalles
             } catch(Exception $e){
                 Log::Error("ReflectChangesDetalle -> modifiedRecords ->", [$e, $record]);
             }
-        }
+        }*/
     }
 }
