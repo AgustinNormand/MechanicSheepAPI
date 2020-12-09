@@ -10,7 +10,8 @@ class ValidatorVehiculos
     {
         //if(!$result)
           //  Log::info("Record not valid in ValidatorClientes", [$record]);
+        $result = (strlen($record->get("PATENTE")) != 0);
 
-        return true;
+        return $result;
     }
 }
