@@ -57,7 +57,7 @@ class Vehiculo extends Eloquent
         //Tengo que ordenarlos del mas nuevo al mas viejo
 
         ///Si vehiculos es ==1 o >1, hay uno o más vehiculos con la misma patente
-        if(count($vehiculos) >= 1)
+        if(count($vehiculos) > 1)
         {
             /* 
             Estaría bueno acá hacer una logica como la de git con los conflictos, 
@@ -97,6 +97,16 @@ class Vehiculo extends Eloquent
                     "ID_PERSONA" => $idPersona,
                 ]);
             }
+        }
+
+        if(count($vehiculos) == 1)
+        {
+            $vehiculos[0]->ID_MODELO = $idModelo;
+            $vehiculos[0]->VIN = $vin;
+            $vehiculos[0]->ANIO = $anio;
+            $vehiculos[0]->NUMERO_MOTOR = $numeroMotor;
+            $vehiculos[0]->ID_PERSONA = $idPersona;
+            $vehiculos[0]->save();
         }
 
         if(count($vehiculos) == 0) {
