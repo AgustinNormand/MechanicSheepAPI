@@ -107,6 +107,7 @@ class Vehiculo extends Eloquent
             $vehiculos[0]->NUMERO_MOTOR = $numeroMotor;
             $vehiculos[0]->ID_PERSONA = $idPersona;
             $vehiculos[0]->save();
+            $result = $vehiculos[0];
         }
 
         if(count($vehiculos) == 0) {
