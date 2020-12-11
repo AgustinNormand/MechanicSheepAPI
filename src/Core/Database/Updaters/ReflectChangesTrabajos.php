@@ -97,7 +97,7 @@ class ReflectChangesTrabajos
                 $trabajo->save();
             } catch(Exception $e){
                 Log::Error("ReflectChangesTrabajo -> modifiedRecords ->", [$e, $record]);
-            }*/
-        }
+            }
+        }*/
     }
 }
