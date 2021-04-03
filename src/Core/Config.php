@@ -55,8 +55,9 @@
         }
 
         public function getFromDatabase($name, $default){
-            $configuration = Configuration::where("NAME", $name)->first()->VALUE;
-            return $configuration ?? $default;
+            //$configuration = Configuration::where("NAME", $name)->first()->VALUE;
+            //return $configuration ?? $default;
+            return getenv($name);
         }
 
         public function get($name)
