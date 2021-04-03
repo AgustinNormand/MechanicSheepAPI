@@ -7,14 +7,14 @@ final class DatabaseColumnsVehiculos
 
     public static $columns = 
     [
-        'PATENTE' => 'vehpat',
+        'NUMBER_PLATE' => 'vehpat',
         'VIN' => 'vehvin',
-        'ANIO' => 'vehano',
-        'APELLIDO' => 'vehape', #
-        'NOMBRE' => 'vehnom', #
-        'MARCA' => 'vehmar', #FALTA EN LA BASE
-        'MODELO' => 'vehmod',
-        'NUMERO_MOTOR' => 'vehmot',
+        'YEAR' => 'vehano',
+        'SURNAME' => 'vehape', #
+        'NAME' => 'vehnom', #
+        'BRAND' => 'vehmar', #FALTA EN LA BASE
+        'MODEL' => 'vehmod',
+        'ENGINE_NUMBER' => 'vehmot',
         #'CODIGO_STEREO' => 'vehste',
         #'CODIGO_LLAVE' => 'vehlla',
         #'CAB_LLAVE' => 'vehlla2', #?

@@ -8,18 +8,18 @@ final class DatabaseColumnsClientes
     public static $columns = 
     [
         #NOMBRE ATRIBUTO DATABASE MYSQL => NOMBRE ATRIBUTO DATABASE DBF
-        'NOMBRE' => 'clinom',
-        'APELLIDO' => 'cliape',
-        'NRO_DOC' => 'clidoc',
+        'NAME' => 'clinom',
+        'SURNAME' => 'cliape',
+        'DOCUMENT_NUMBER' => 'clidoc',
         #FECHA_NAC NO TENGO
-        'CALLE' => 'clidir',
+        'STREET' => 'clidir',
         #NRO_CALLE HAY QUE PARSEARLO
-        'LOCALIDAD' => 'cliloc',
+        'LOCALITY' => 'cliloc',
         #PAIS NO TENGO
-        'TELEFONO' => 'clitel',
+        'PHONE' => 'clitel',
         'EMAIL' => 'climai',
         #DESCRIPCION NO TENGO
-        'CODIGO_POSTAL' => 'clicpo',
+        'POSTAL_CODE' => 'clicpo',
         #'BARRIO' => 'clibar', NO ESTÁ EN LA BASE
         
         /*Estos datos no sé si sirven*/
