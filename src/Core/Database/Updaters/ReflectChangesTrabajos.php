@@ -4,13 +4,14 @@ namespace API\Core\Database\Updaters;
 
 use \Exception;
 
-use API\Core\Database\Models\Trabajo;
-use API\Core\Database\Models\Cliente;
-use API\Core\Database\Models\Marca;
-use API\Core\Database\Models\Modelo;
-use API\Core\Database\Models\Servicio;
-use API\Core\Database\Models\TrabajoEmpleadoSector;
-use API\Core\Database\Models\Vehiculo;
+use API\Core\Database\Models\Job;
+use API\Core\Database\Models\Person;
+use API\Core\Database\Models\Brand;
+use API\Core\Database\Models\Empleado;
+use API\Core\Database\Models\Employee;
+use API\Core\Database\Models\Model;
+use API\Core\Database\Models\Service;
+use API\Core\Database\Models\Vehicle;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsTrabajos;
 use API\Core\Database\Updaters\ReflectChangesVehiculos;
 use API\Core\Log;
@@ -31,46 +32,44 @@ class ReflectChangesTrabajos
             try{
                 Log::Debug("Adding new record to database:", [$record]);
  
-                $patente = $record->get("PATENTE");
-                $idMarca = Marca::obtenerOCrearMarca($record->get("MARCA"))->ID_MARCA;
-                $idModelo = Modelo::obtenerOCrearModelo($record->get("MODELO"), $idMarca)->ID_MODELO;
-                $vehiculo = Vehiculo::obtenerVehiculo($patente, $idModelo);
+                $patente = $record->get("NUMBER_PLATE");
+                $idMarca = Brand::obtenerOCrearMarca($record->get("BRAND"))->ID_BRAND;
+                $idModelo = Model::obtenerOCrearModelo($record->get("MODEL"), $idMarca)->ID_MODEL;
+                $vehiculo = Vehicle::obtenerVehiculo($patente, $idModelo);
                 if(is_null($vehiculo)){
-                    $persona = Cliente::obtenerExactoOSetearNuloPersona($record->get("NOMBRE"), $record->get("APELLIDO"));
-                    $vehiculo = Vehiculo::crearVehiculo($patente, $persona->ID_PERSONA, $idModelo);
+                    $persona = Person::obtenerExactoOSetearNuloPersona($record->get("NAME"), $record->get("SURNAME"));
+                    $vehiculo = Vehicle::crearVehiculo($patente, $persona->ID_PERSON, $idModelo);
                 }
 
-                $servicio = Servicio::obtenerOSetearNuloServicio($record->get("DESCRIPCION"));
+                $servicio = Service::obtenerOSetearNuloServicio($record->get("DESCRIPTION"));
 
-                $numeroTrabajo = $record->get("NRO_TRABAJO");
+                $numeroTrabajo = $record->get("NUMBER");
                 if(strlen($numeroTrabajo) == 0)
                     $numeroTrabajo = null;
 
-                $trabajo = Trabajo::create([
-                    "NRO_TRABAJO" => $numeroTrabajo, 
-                    "FECHA" => $record->get("FECHA"),
-                    "KILOMETROS" => $record->get("KILOMETROS"),
-                    "ID_SERVICIO" => $servicio->ID_SERVICIO,
-                    "ID_VEHICULO" => $vehiculo->ID_VEHICULO,
+                $trabajo = Job::create([
+                    "NUMBER" => $numeroTrabajo, 
+                    "DATE" => $record->get("DATE"),
+                    "KILOMETERS" => $record->get("KILOMETERS"),
+                    "ID_SERVICE" => $servicio->ID_SERVICE,
+                    "ID_VEHICLE" => $vehiculo->ID_VEHICLE,
+                    "ID_EMPLOYEE" => Employee::firstOrCreate(["NAME" => $record->get("EMPLOYEE")])->ID_EMPLOYEE,
                 ]);
 
-                TrabajoEmpleadoSector::asignarTrabajoAEmpleadoASector($record->get("EMPLEADO"),
-                                                                      $trabajo->ID_TRABAJO,
-                                                                      $record->get("NRO_SUCURSAL"));
             }catch(Exception $e){
                 Log::Error("ReflectChangesTrabajos -> newRecords ->", [$e, $record]);
                 die;
             }
         }
     }
-
+/*
     public function deletedRecords($records)
     {
         foreach($records as $record)
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $trabajo = Trabajo::where("NRO_TRABAJO", $record->get("NRO_TRABAJO"))->first();
+                $trabajo = Job::where("NRO_TRABAJO", $record->get("NRO_TRABAJO"))->first();
                 $trabajo->delete();
             } catch(Exception $e){
                 Log::Error("ReflectChangesTrabajos -> deletedRecords ->", [$e, $record]);
@@ -99,5 +98,5 @@ class ReflectChangesTrabajos
                 Log::Error("ReflectChangesTrabajo -> modifiedRecords ->", [$e, $record]);
             }
         }*/
-    }
+    /*}*/
 }

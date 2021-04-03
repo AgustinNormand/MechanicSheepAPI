@@ -4,10 +4,10 @@ namespace API\Core\Database\Updaters;
 
 use \Exception;
 
-use API\Core\Database\Models\Vehiculo;
-use API\Core\Database\Models\Cliente;
-use API\Core\Database\Models\Marca;
-use API\Core\Database\Models\Modelo;
+use API\Core\Database\Models\Vehicle;
+use API\Core\Database\Models\Person;
+use API\Core\Database\Models\Brand;
+use API\Core\Database\Models\Model;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsVehiculos;
 use API\Core\Log;
 
@@ -25,18 +25,18 @@ class ReflectChangesVehiculos
             try{
                 Log::Debug("Adding new record to database:", [$record]);
 
-                $marca = Marca::obtenerOCrearMarca($record->get("MARCA"));
+                $marca = Brand::obtenerOCrearMarca($record->get("BRAND"));
 
-                $modelo = Modelo::obtenerOCrearModelo($record->get("MODELO"), $marca->ID_MARCA);
+                $modelo = Model::obtenerOCrearModelo($record->get("MODEL"), $marca->ID_MARCA);
 
-                $persona = Cliente::obtenerExactoOSetearNuloPersona($record->get("NOMBRE"), $record->get("APELLIDO"));
+                $persona = Person::obtenerExactoOSetearNuloPersona($record->get("NAME"), $record->get("SURNAME"));
 
-                $vehiculo = Vehiculo::crearVehiculo($record->get("PATENTE"),
-                                                    $persona->ID_PERSONA,
-                                                    $modelo->ID_MODELO,
+                $vehiculo = Vehicle::crearVehiculo($record->get("NUMBER_PLATE"),
+                                                    $persona->ID_PERSON,
+                                                    $modelo->ID_MODEL,
                                                     $record->get("VIN"),
-                                                    $record->get("ANIO"),
-                                                    $record->get("NUMERO_MOTOR")
+                                                    $record->get("YEAR"),
+                                                    $record->get("EGINE_NUMBER")
                                                     );
 
                 if(is_null($vehiculo))
@@ -48,14 +48,14 @@ class ReflectChangesVehiculos
             }
         }
     }
-
+/*
     public function deletedRecords($records)
     {
         foreach($records as $record)
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $vehiculo = Vehiculo::where("PATENTE", $record->get("PATENTE"))->first();
+                $vehiculo = Vehicle::where("PATENTE", $record->get("PATENTE"))->first();
                 //Si hay mas de uno debería tomar una acicon diferente.
                 $vehiculo->delete();
             } catch(Exception $e){
@@ -72,10 +72,10 @@ class ReflectChangesVehiculos
                 Log::Debug("Modifing record in database:", [$record["from"], $record["to"]]);
                 #if($record["from"]->getIndex() != $record["to"]->getIndex())
                 #    Log::warning("ReflectChangesVehiculo -> modifiedRecords -> Se está intentando cambiar la clave primaria de un registro", [$record["from"], $record["to"]]);
-                $vehiculo = Vehiculo::where("PATENTE", $record["from"]->get("PATENTE"))->first();
+                $vehiculo = Vehicle::where("PATENTE", $record["from"]->get("PATENTE"))->first();
                 
-                $marca = Marca::obtenerOCrearMarca($record["to"]->get("MARCA"));
-                $modelo = Modelo::obtenerOCrearModelo($record["to"]->get("MODELO"), $marca->ID_MARCA);
+                $marca = Brand::obtenerOCrearMarca($record["to"]->get("MARCA"));
+                $modelo = Model::obtenerOCrearModelo($record["to"]->get("MODELO"), $marca->ID_MARCA);
 
                 $vehiculo->PATENTE = $record["to"]->get("PATENTE");
                 $vehiculo->VIN = $record["to"]->get("VIN");
@@ -87,5 +87,5 @@ class ReflectChangesVehiculos
                 Log::Error(" ReflectChangesVehiculo -> modifiedRecords ->", [$e, $record]);
             }
         }
-    }
+    }*/
 }

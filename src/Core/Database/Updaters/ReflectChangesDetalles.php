@@ -4,11 +4,12 @@ namespace API\Core\Database\Updaters;
 
 use \Exception;
 
-use API\Core\Database\Models\Detalle;
-use API\Core\Database\Models\Marca;
-use API\Core\Database\Models\Modelo;
-use API\Core\Database\Models\Trabajo;
-use API\Core\Database\Models\Cliente;
+use API\Core\Database\Models\Detail;
+use API\Core\Database\Models\Brand;
+use API\Core\Database\Models\Employee;
+use API\Core\Database\Models\Model;
+use API\Core\Database\Models\Job;
+use API\Core\Database\Models\Person;
 use API\Core\Enum\DatabaseColumns\DatabaseColumnsDetalles;
 
 use API\Core\Log;
@@ -22,19 +23,21 @@ class ReflectChangesDetalles
 
     private function createTrabajo($record){
 
-        $patente = $record->get("PATENTE");
+        $patente = $record->get("NUMBER_PLATE");
 
-        $idMarca = Marca::obtenerOCrearMarca("")->ID_MARCA;
+        $idMarca = Brand::obtenerOCrearMarca("")->ID_BRAND;
 
-        $idModelo = Modelo::obtenerOCrearModelo("", $idMarca)->ID_MODELO;
+        $idModelo = Model::obtenerOCrearModelo("", $idMarca)->ID_MODEL;
 
-        $idPersona = Cliente::obtenerExactoOSetearNuloPersona($record->get("NOMBRE_CLIENTE"), $record->get("APELLIDO_CLIENTE"))->ID_PERSONA;
+        $idPersona = Person::obtenerExactoOSetearNuloPersona($record->get("NAME"), $record->get("SURNAME"))->ID_PERSON;
 
-        $numeroTrabajo = $record->get("NRO_TRABAJO");
+        $numeroTrabajo = $record->get("JOB_NUMBER");
 
-        $descripcion = $record->get("DESCRIPCION");
+        $descripcion = $record->get("DESCRIPTION");
 
-        $trabajo = Trabajo::createTrabajo($patente, $idModelo, $idPersona, $numeroTrabajo, $descripcion);
+        $idEmployee = Employee::firstOrCreate(["NAME" => "EmpleadoNulo"])->ID_EMPLOYEE;
+
+        $trabajo = Job::createTrabajo($patente, $idModelo, $idPersona, $numeroTrabajo, $descripcion, $idEmployee);
 
         $return = null;
 
@@ -46,9 +49,9 @@ class ReflectChangesDetalles
 
     private function isLoadedDetalle($record){
         $result = false;
-        if(strlen($record->get("NOMBRE_CLIENTE")) > 0 ||
-            strlen($record->get("APELLIDO_CLIENTE")) > 0 ||
-            strlen($record->get("PATENTE") > 0))
+        if(#strlen($record->get("NAME")) > 0 ||
+            #strlen($record->get("SURNAME")) > 0 ||
+            strlen($record->get("NUMBER_PLATE") > 0))
             $result = true;
         return $result;
     }
@@ -57,15 +60,15 @@ class ReflectChangesDetalles
         $idTrabajo = null;
 
         /* BLOQUE PARA MEJORAR */
-        if(strlen($record->get("NRO_TRABAJO")) == 0){
-            Log::alert("Detalle con NRO_TRABAJO nulo", [$record]);
+        if(strlen($record->get("JOB_NUMBER")) == 0){
+            Log::alert("Detalle con JOB_NUMBER nulo", [$record]);
             //die;
         }
         /* */
 
-        $trabajos = Trabajo::where("NRO_TRABAJO", $record->get("NRO_TRABAJO"))->get();
+        $trabajos = Job::where("NUMBER", $record->get("JOB_NUMBER"))->get();
         if(count($trabajos) == 1) /* El numero de trabajo no está duplicado en la DB */
-            $idTrabajo = $trabajos[0]->ID_TRABAJO;
+            $idTrabajo = $trabajos[0]->ID_JOB;
 
         /* BLOQUE PARA MEJORAR */
         if(count($trabajos) == 0){ /* El detalle no pertenece a ningún trabajo */
@@ -79,18 +82,19 @@ class ReflectChangesDetalles
                     
             } else{
                 //Lo agrego al trabajo padre que almacena todos los detalles sin trabajo
-                $trabajo = Trabajo::firstOrCreate(
-                    ["NRO_TRABAJO" => 0],
-                    ["DESCRIPCION" => "Trabajo para los detalles que no tienen un numero de trabajo"]
+                $trabajo = Job::firstOrCreate(
+                    ["NUMBER" => 0],
+                    ["DESCRIPTION" => "Trabajo para los detalles que no tienen un numero de trabajo",
+                    "ID_EMPLOYEE" => Employee::firstOrCreate(["NAME" => "EmpleadoNulo"])->ID_EMPLOYEE]
                 );
-                $idTrabajo = $trabajo->ID_TRABAJO;
-                Log::alert("Detalle cuyo NRO_TRABAJO no se pudo encontrar en la db y no tenia datos para crear el trabajo, se asignó al trabajo nulo.", [$record, $idTrabajo]);
+                $idTrabajo = $trabajo->ID_JOB;
+                Log::alert("Detalle cuyo ID_JOB no se pudo encontrar en la db y no tenia datos para crear el trabajo, se asignó al trabajo nulo.", [$record, $record]);
             }
         }
         /* */
 
         if(count($trabajos) > 1){ /* El detalle pertenece a un trabajo que está duplicado */
-            Log::alert("Detalle cuyo NRO_TRABAJO está duplicado en la db", [$record, $trabajos]);
+            Log::alert("Detalle cuyo ID_JOB está duplicado en la db", [$record, $trabajos]);
             //die;
         }
 
@@ -111,26 +115,27 @@ class ReflectChangesDetalles
                     continue;
                 /* */
 
-                Detalle::create([
-                    "DESCRIPCION" => $record->get("DESCRIPCION"),
-                    "CANTIDAD" => $record->get("CANTIDAD"),
-                    "ID_TRABAJO" => $idTrabajo,
+                Detail::create([
+                    "DESCRIPTION" => $record->get("DESCRIPTION"),
+                    "AMOUNT" => $record->get("AMOUNT"),
+                    "ID_JOB" => $idTrabajo,
                 ]);
 
             }catch(Exception $e){
                 Log::Error("ReflectChangesDetalles -> newRecords ->", [$e, $record]);     
-                #die;
+                die;
             }
         }
     }
 
+    /*
     public function deletedRecords($records)
     {
         foreach($records as $record)
         {
             try{
                 Log::Debug("Deleting record to database:", [$record]);
-                $detalle = Detalle::where($record->getIndex())->first();
+                $detalle = Detail::where($record->getIndex())->first();
                 $detalle->delete();
             } catch(Exception $e){
                 Log::Error("ReflectChangesDetalles -> deletedRecords ->", [$e, $record]);
@@ -159,5 +164,5 @@ class ReflectChangesDetalles
                 Log::Error("ReflectChangesDetalle -> modifiedRecords ->", [$e, $record]);
             }
         }*/
-    }
+   /* }*/
 }
