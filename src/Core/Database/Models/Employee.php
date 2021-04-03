@@ -5,10 +5,10 @@ namespace API\Core\Database\Models;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 
-class Empleado extends Eloquent
+class Employee extends Eloquent
 {
-    protected $table = "empleados";
-    protected $primaryKey = 'ID_EMPLEADO';
+    protected $table = "EMPLOYEES";
+    protected $primaryKey = 'ID_EMPLOYEE';
     protected $guarded = [];
 
     public static function obtenerExactoOSetearNulo($nombre){

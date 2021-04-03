@@ -6,19 +6,19 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 
 use API\Core\Database\Models\Vehiculo;
 
-class Trabajo extends Eloquent
+class Job extends Eloquent
 {
-    protected $table = "trabajos";
-    protected $primaryKey = 'ID_TRABAJO';
+    protected $table = "JOBS";
+    protected $primaryKey = 'ID_JOB';
     protected $guarded = [];
 
-    public static function createTrabajo($patente, $idModelo, $idPersona, $numeroTrabajo, $descripcion){
+    public static function createTrabajo($patente, $idModelo, $idPersona, $numeroTrabajo, $descripcion, $idEmployee){
         $return = null;
         $vehiculo = null;
-        $vehiculos = Vehiculo::where("PATENTE", $patente)->get();
+        $vehiculos = Vehicle::where("NUMBER_PLATE", $patente)->get();
         //Si hay mas de 1?
         if(count($vehiculos) == 0){
-            $vehiculo = Vehiculo::crearVehiculo($patente, $idPersona, $idModelo);
+            $vehiculo = Vehicle::crearVehiculo($patente, $idPersona, $idModelo);
 
         }
 
@@ -36,12 +36,13 @@ class Trabajo extends Eloquent
             if(strlen($numeroTrabajo) == 0)
                 $numeroTrabajo = null;
 
-            $servicio = Servicio::obtenerOSetearNuloServicio($descripcion);
+            $servicio = Service::obtenerOSetearNuloServicio($descripcion);
 
-            $trabajo = Trabajo::create([
-                "NRO_TRABAJO" => $numeroTrabajo,
-                "ID_SERVICIO" => $servicio->ID_SERVICIO,
-                "ID_VEHICULO" => $vehiculo->ID_VEHICULO
+            $trabajo = Job::create([
+                "NUMBER" => $numeroTrabajo,
+                "ID_SERVICE" => $servicio->ID_SERVICIO,
+                "ID_VEHICLE" => $vehiculo->ID_VEHICULO,
+                "ID_EMPLOYEE" => $idEmployee,
             ]);
 
             $return = $trabajo->ID_TRABAJO;

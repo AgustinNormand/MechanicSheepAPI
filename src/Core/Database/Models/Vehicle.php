@@ -4,10 +4,10 @@ namespace API\Core\Database\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Vehiculo extends Eloquent
+class Vehicle extends Eloquent
 {
-    protected $table = "vehiculos";
-    protected $primaryKey = 'ID_VEHICULO';
+    protected $table = "VEHICLES";
+    protected $primaryKey = 'ID_VEHICLE';
     protected $guarded = [];
 
     public static function obtenerVehiculo($patente, $idModelo){
@@ -15,8 +15,8 @@ class Vehiculo extends Eloquent
         $result = null;
 
         $vehiculos = self::where([
-            ["PATENTE", $patente],
-            ["ID_MODELO", $idModelo]
+            ["NUMBER_PLATE", $patente],
+            ["ID_MODEL", $idModelo]
         ])->get();
 
         if(count($vehiculos) == 1)
@@ -38,22 +38,22 @@ class Vehiculo extends Eloquent
         if(strlen($vin) > 0)            
             $vehiculo->VIN = $vin;
         
-        $anio = $record->get("ANIO");
+        $anio = $record->get("YEAR");
         if(strlen($anio) > 0)
-            $vehiculo->ANIO = $anio;
+            $vehiculo->YEAR = $anio;
         
-        $numeroMotor = $record->get("NUMERO_MOTOR");
+        $numeroMotor = $record->get("ENGINE_NUMBER");
         if(strlen($numeroMotor) > 0)
-            $vehiculo->NUMERO_MOTOR = $numeroMotor;
+            $vehiculo->ENGINE_NUMBER = $numeroMotor;
 
-        $vehiculo->ID_PERSONA = $idPersona; //Si la persona es nula, la voy a remplazar con la actual, que capaz es valida
+        $vehiculo->ID_PERSON = $idPersona; //Si la persona es nula, la voy a remplazar con la actual, que capaz es valida
         $vehiculo->save();
     }
 
     public static function crearVehiculo($patente, $idPersona, $idModelo, $vin = null, $anio = null, $numeroMotor = null){
         $result = null;
 
-        $vehiculos = self::where("PATENTE", $patente)->get();
+        $vehiculos = self::where("NUMBER_PLATE", $patente)->get();
         //Tengo que ordenarlos del mas nuevo al mas viejo
 
         ///Si vehiculos es ==1 o >1, hay uno o más vehiculos con la misma patente
@@ -67,20 +67,20 @@ class Vehiculo extends Eloquent
             $found = false;
 
             foreach($vehiculos as $vehiculo){
-                if(($vehiculo->ID_MODELO == $idModelo) and $found == true)
+                if(($vehiculo->ID_MODEL == $idModelo) and $found == true)
                     $vehiculo->delete();
                 else
-                    if (($vehiculo->ID_MODELO == $idModelo) and $found == false)
+                    if (($vehiculo->ID_MODEL == $idModelo) and $found == false)
                     {
                         $found = true;
 
-                        $vehiculo->ID_PERSONA = $idPersona;
+                        $vehiculo->ID_PERSON = $idPersona;
                         if(strlen($vin) > strlen($vehiculo->VIN))
                             $vehiculo->VIN = $vin;
-                        if(strlen($anio) > strlen($vehiculo->ANIO))
-                            $vehiculo->ANIO = $anio;
-                        if(strlen($numeroMotor) > strlen($vehiculo->NUMERO_MOTOR))
-                            $vehiculo->NUMERO_MOTOR = $numeroMotor;
+                        if(strlen($anio) > strlen($vehiculo->YEAR))
+                            $vehiculo->YEAR = $anio;
+                        if(strlen($numeroMotor) > strlen($vehiculo->ENGINE_NUMBER))
+                            $vehiculo->ENGINE_NUMBER = $numeroMotor;
                         $vehiculo->save();
 
                         $result = $vehiculo;
@@ -88,36 +88,36 @@ class Vehiculo extends Eloquent
             }
 
             if($found == false){ //No encontró un vehiculo que tenga el mismo modelo del que se está ingresando
-                $result = Vehiculo::create([
-                    "PATENTE" => $patente,
-                    "ID_MODELO" => $idModelo,
+                $result = Vehicle::create([
+                    "NUMBER_PLATE" => $patente,
+                    "ID_MODEL" => $idModelo,
                     "VIN" => $vin,
-                    "ANIO" => $anio,
-                    "NUMERO_MOTOR" => $numeroMotor,
-                    "ID_PERSONA" => $idPersona,
+                    "YEAR" => $anio,
+                    "ENGINE_NUMBER" => $numeroMotor,
+                    "ID_PERSON" => $idPersona,
                 ]);
             }
         }
 
         if(count($vehiculos) == 1)
         {
-            $vehiculos[0]->ID_MODELO = $idModelo;
+            $vehiculos[0]->ID_MODEL = $idModelo;
             $vehiculos[0]->VIN = $vin;
-            $vehiculos[0]->ANIO = $anio;
-            $vehiculos[0]->NUMERO_MOTOR = $numeroMotor;
-            $vehiculos[0]->ID_PERSONA = $idPersona;
+            $vehiculos[0]->YEAR = $anio;
+            $vehiculos[0]->ENGINE_NUMBER = $numeroMotor;
+            $vehiculos[0]->ID_PERSON = $idPersona;
             $vehiculos[0]->save();
             $result = $vehiculos[0];
         }
 
         if(count($vehiculos) == 0) {
-            $result = Vehiculo::create([
-                "PATENTE" => $patente,
-                "ID_MODELO" => $idModelo,
+            $result = Vehicle::create([
+                "NUMBER_PLATE" => $patente,
+                "ID_MODEL" => $idModelo,
                 "VIN" => $vin,
-                "ANIO" => $anio,
-                "NUMERO_MOTOR" => $numeroMotor,
-                "ID_PERSONA" => $idPersona,
+                "YEAR" => $anio,
+                "ENGINE_NUMBER" => $numeroMotor,
+                "ID_PERSON" => $idPersona,
             ]);
             
         }

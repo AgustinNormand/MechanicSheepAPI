@@ -4,10 +4,10 @@ namespace API\Core\Database\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Modelo extends Eloquent
+class Model extends Eloquent
 {
-    protected $table = "modelos";
-    protected $primaryKey = 'ID_MODELO';
+    protected $table = "MODELS";
+    protected $primaryKey = 'ID_MODEL';
     protected $guarded = [];
 
     public static function obtenerOCrearModelo($modelo, $idMarca){
@@ -16,8 +16,8 @@ class Modelo extends Eloquent
 
         $modelo = self::firstOrCreate(
             [
-                'NOMBRE_FANTASIA' => $modelo,
-                'ID_MARCA' => $idMarca
+                'NAME' => $modelo,
+                'ID_BRAND' => $idMarca
             ]
         );
         return $modelo;

@@ -4,10 +4,10 @@ namespace API\Core\Database\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Marca extends Eloquent
+class Brand extends Eloquent
 {
-    protected $table = "marcas";
-    protected $primaryKey = 'ID_MARCA';
+    protected $table = "BRANDS";
+    protected $primaryKey = 'ID_BRAND';
     protected $guarded = [];
 
     public static function obtenerOCrearMarca($marca){
@@ -15,7 +15,7 @@ class Marca extends Eloquent
             $marca = "SinMarca";
 
         $marca = self::firstOrCreate(
-                ['RAZON_SOCIAL' => $marca]
+                ['NAME' => $marca]
             );
         return $marca;
     }
