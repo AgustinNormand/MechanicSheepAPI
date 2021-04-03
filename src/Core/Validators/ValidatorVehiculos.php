@@ -2,15 +2,19 @@
 
 namespace API\Core\Validators;
 
+use API\Core\Log;
+
 //use API\Core\Log;
 
 class ValidatorVehiculos
 {
     public static function isValid($record)
     {
-        //if(!$result)
-          //  Log::info("Record not valid in ValidatorClientes", [$record]);
-        $result = (strlen($record->get("PATENTE")) != 0);
+
+      $result = (strlen($record->get("NUMBER_PLATE")) != 0);
+
+        if(!$result)
+            Log::info("Record not valid in ValidatorVehiculos", [$record]);
 
         return $result;
     }
