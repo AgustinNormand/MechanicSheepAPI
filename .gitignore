@@ -5,3 +5,9 @@ logs/
 .env
 DATABASES/
 *.pem
+*.dbf
+*.dbf*bk
+*.DBF
+*.CDX
+*.cdx
+*.FPT
