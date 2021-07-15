@@ -106,7 +106,7 @@ class ReflectChangesDetalles
         foreach($records as $record)
         {
             try{
-                Log::Debug("Adding new record to database:", [$record]);
+                #Log::Debug("Adding new record to database:", [$record]);
 
                 $idTrabajo = $this->obtenerIdTrabajo($record);
 

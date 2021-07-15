@@ -30,7 +30,7 @@ class ReflectChangesTrabajos
         foreach($records as $record)
         {
             try{
-                Log::Debug("Adding new record to database:", [$record]);
+                #Log::Debug("Adding new record to database:", [$record]);
  
                 $patente = $record->get("NUMBER_PLATE");
                 $idMarca = Brand::obtenerOCrearMarca($record->get("BRAND"))->ID_BRAND;

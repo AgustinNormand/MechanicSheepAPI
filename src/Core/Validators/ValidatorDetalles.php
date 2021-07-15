@@ -25,6 +25,8 @@ class ValidatorDetalles
             #$columnName = "movcom";
             //var_dump($record);
             $result = (strlen($record->get("COMPROBANTE")) != 0);
+            if(!$result)
+            Log::debug("Record not valid in ValidatorDetalles", [$record]);
 
             //if($result)
             //    echo "True";
@@ -33,8 +35,7 @@ class ValidatorDetalles
             //die;
         }
 
-        //if(!$result)
-            //Log::info("Record not valid in ValidatorClientes", [$record]);
+        
 
         return $result;
     }

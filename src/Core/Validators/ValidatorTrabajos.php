@@ -17,10 +17,11 @@ class ValidatorTrabajos
         {
             $result = false;
             $result = ($record->get("ESTADO") == 'T');
+            if(!$result)
+            Log::debug("Record not valid in ValidatorTrabajos", [$record]);
         }
 
-        //if(!$result)
-            //Log::info("Record not valid in ValidatorClientes", [$record]);
+        
 
         return $result;
     }

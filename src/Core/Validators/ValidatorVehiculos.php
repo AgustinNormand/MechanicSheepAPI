@@ -14,7 +14,7 @@ class ValidatorVehiculos
       $result = (strlen($record->get("NUMBER_PLATE")) != 0);
 
         if(!$result)
-            Log::info("Record not valid in ValidatorVehiculos", [$record]);
+            Log::debug("Record not valid in ValidatorVehiculos", [$record]);
 
         return $result;
     }

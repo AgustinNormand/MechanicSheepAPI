@@ -1,5 +1,5 @@
 <?php
-    require '..' . DIRECTORY_SEPARATOR .'bootstrap.php';
+    require __DIR__. '/../bootstrap.php';
 
     use API\Core\Config;
     use API\Core\Enum\DatabaseNames;
@@ -19,13 +19,14 @@
                 $validatorName = "API\\Core\\Validators\\Validator{$databaseName}";
                 $dbfName = Config::getInstance()->get("DBF_". strtoupper($databaseName) ."_NAME");
                 $fullPath = $dbfPath . $dbfName;
+                Log::Info("File located in {$fullPath}");
                 $table = new Table($fullPath, $databaseName);
                 $undeletedRecords = $table->getAllUndeletedRecords();
                 $validRecords = [];
                 foreach($undeletedRecords as $undeletedRecord)
                     if($validatorName::isValid($undeletedRecord))
                         $validRecords[] = $undeletedRecord;
-                /** */
+                /* */
                 //echo count($validRecords);
                 //echo PHP_EOL;
                 //continue;

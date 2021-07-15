@@ -23,7 +23,7 @@ class ReflectChangesVehiculos
         foreach($records as $record)
         {
             try{
-                Log::Debug("Adding new record to database:", [$record]);
+                #Log::Debug("Adding new record to database:", [$record]);
 
                 $marca = Brand::obtenerOCrearMarca($record->get("BRAND"));
 

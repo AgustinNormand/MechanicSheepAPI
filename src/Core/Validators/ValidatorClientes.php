@@ -11,7 +11,7 @@ class ValidatorClientes
         $result = ((strlen($record->get("NAME")) != 0) or (strlen($record->get("SURNAME")) != 0));
         
         if(!$result)
-            Log::info("Record not valid in ValidatorClientes", [$record]);
+            Log::debug("Record not valid in ValidatorClientes", [$record]);
             
         return $result;
     }

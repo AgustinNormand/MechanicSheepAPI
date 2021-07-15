@@ -4,6 +4,7 @@
     use Dotenv\Dotenv;
     use Monolog\Logger;
     use Monolog\Handler\StreamHandler;
+    use Monolog\Formatter\LineFormatter;
     use Illuminate\Database\Capsule\Manager as Capsule;
 
     use API\Core\Config;

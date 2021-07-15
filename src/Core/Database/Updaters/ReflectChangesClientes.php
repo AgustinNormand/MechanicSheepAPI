@@ -63,7 +63,7 @@ class ReflectChangesClientes
         foreach($records as $record)
         {
             try{
-                Log::Debug("Adding new record to database:", [$record]);
+                #Log::Debug("Adding new record to database:", [$record]);
 
                 if(!$this->isClientToOverride($record)){
                     //Si en la base no hay clientes con ese DNI

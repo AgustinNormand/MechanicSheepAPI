@@ -4,6 +4,7 @@ namespace API\Core;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 class Log
 {
@@ -24,6 +25,9 @@ class Log
         $config = Config::getInstance();
 		self::$instance = new Logger("MechanicSheepAPI");
         $handler = new StreamHandler(__DIR__ . "{$ds}..{$ds}.." . $config->get("LOG_PATH"));
+		$output = "%level_name%: %message% %context.user%\n";
+     	$formatter = new LineFormatter($output);
+		$handler->setFormatter($formatter);
         $handler->setLevel($config->get("LOG_LEVEL"));
         self::$instance->pushHandler($handler);
     }
